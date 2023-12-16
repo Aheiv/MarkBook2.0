@@ -1,0 +1,64 @@
+﻿@page "/admin/parents"
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<Data.Database.Context> DbFactory
+@layout Components.Layout.AdminLayout
+@rendermode InteractiveServer
+
+<div>
+	<div class="container h-50 py-10">
+		@if (!loading)
+		{
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Фамилия</th>
+						<th scope="col">Имя</th>
+						<th scope="col">Отчество</th>
+						<th scope="col">Пол</th>
+						<th scope="col">Дата рождения</th>
+						<th scope="col">Номер телефона</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Data.Database.Model.Parent parent in parents)
+					{
+						string patronymic = parent.patronymic == null ? "-" : parent.patronymic;
+
+						<tr>
+							<th scope="row">@parent.id_parent</th>
+							<td>@parent.surname</td>
+							<td>@parent.name</td>
+							<td>@patronymic</td>
+							<td>@parent.gender</td>
+							<td>@parent.date_of_birth.ToLongDateString()</td>
+							<td>@parent.phonenumber</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+	</div>
+</div>
+
+@code {
+	private bool loading = true;
+
+	private List<Data.Database.Model.Parent> parents;
+
+	private async Task LoadParents()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			parents = await db.Parents.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadParents();
+	}
+}

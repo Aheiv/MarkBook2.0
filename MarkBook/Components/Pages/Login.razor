@@ -1,0 +1,44 @@
+﻿@page "/login"
+@using MarkBook.Data.Login
+@rendermode InteractiveServer
+
+<PageTitle>Вход</PageTitle>
+
+<div>
+	<div class="container h-50 py-10">
+		<EditForm Model="@loginModel" OnSubmit="Submit">
+			<div class="text-left">
+				<p>Для выполнения входа в систему укажите свой логин и пароль</p>
+			</div>
+			<div>
+				<p>Логин
+					<InputText @bind-Value="loginModel.Login" class="rounded"></InputText>
+				</p>
+			</div>
+			<div>
+				<p>Пароль
+				<InputText @bind-Value="loginModel.Password" class="rounded"></InputText> 
+				</p>
+			</div>
+
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			<div>
+				<button type="submit" class="btn btn-outline-info">Войти в систему</button>
+			</div>
+		</EditForm>
+		<div class="position-absolute top-50 end-0 translate-middle-y my-5">
+			<img style="width: 30%; height: 30%;" src="https://gas-kvas.com/grafic/uploads/posts/2023-10/1696468960_gas-kvas-com-p-kartinki-globus-s-knigami-1.jpg" class="img-fluid " alt="kartinka">
+		</div>
+	</div>
+</div>
+
+@code {
+	private LoginModel loginModel = new LoginModel();
+
+	private void Submit()
+	{
+		
+	}
+}
