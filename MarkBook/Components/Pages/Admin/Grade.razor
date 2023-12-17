@@ -13,14 +13,15 @@
 				<thead>
 					<tr>
 						<th scope="col">#</th>
-						<th scope="col">Наименование</th>
-						<th scope="col">Субнаименование</th>
+						<th scope="col">Класс</th>
+						<th scope="col">Субкласс</th>
 						<th scope="col">Студент</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (Data.Database.Model.Grade grade in grades)
 					{
+
 						<tr>
 							<th scope="row">@grade.id_grade</th>
 							<td>@grade.name</td>

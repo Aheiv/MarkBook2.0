@@ -14,7 +14,6 @@ namespace MarkBook.Data.Database.Model
         [StringLength(30)]
         public string type { get; set; }
 
-        public int id_teacher { get; set; }
 
         public virtual Teacher Teacher { get; set; }
     }

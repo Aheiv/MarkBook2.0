@@ -1,14 +1,56 @@
 ﻿@page "/admin/specializations"
+@using Microsoft.EntityFrameworkCore
 
+@inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
 
 <div>
 	<div class="container h-50 py-10">
-		Специализации
+		@if (!loading)
+		{
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Тип специализации</th>
+						<th scope="col">ФИО учителя</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Data.Database.Model.Specialization specialization in specializations)
+					{
+						string teacherFullName = $"{specialization.Teacher.surname} {specialization.Teacher.name} {specialization.Teacher.patronymic}";
+
+						<tr>
+							<th scope="row">@specialization.id_specialization</th>
+							<td>@specialization.type</td>
+							<td>@teacherFullName</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	</div>
 </div>
 
 @code {
+	private bool loading = true;
 
+	private List<Data.Database.Model.Specialization> specializations;
+
+	private async Task LoadSpecs()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			specializations = await db.Specializations.Include(x => x.Teacher).ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadSpecs();
+	}
 }

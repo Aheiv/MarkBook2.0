@@ -1,14 +1,56 @@
 ﻿@page "/admin/teachers"
+@using Microsoft.EntityFrameworkCore
 
+@inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
 
 <div>
 	<div class="container h-50 py-10">
-		Учителя
+		@if (!loading)
+		{
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Фамилия</th>
+						<th scope="col">Имя</th>
+						<th scope="col">Отчество</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Data.Database.Model.Teacher teacher in teachers)
+					{
+						<tr>
+							<th scope="row">@teacher.id_teacher</th>
+							<td>@teacher.surname</td>
+							<td>@teacher.name</td>
+							<td>@teacher.patronymic</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	</div>
 </div>
 
 @code {
+	private bool loading = true;
 
+	private List<Data.Database.Model.Teacher> teachers;
+
+	private async Task LoadTeachers()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			teachers = await db.Teachers.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadTeachers();
+	}
 }

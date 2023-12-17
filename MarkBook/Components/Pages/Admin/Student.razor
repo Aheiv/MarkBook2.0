@@ -1,14 +1,77 @@
 ﻿@page "/admin/students"
+@using Microsoft.EntityFrameworkCore
 
+@inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
 
 <div>
 	<div class="container h-50 py-10">
-        Студенты
+		@if (!loading)
+		{
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Фамилия</th>
+						<th scope="col">Имя</th>
+						<th scope="col">Отчество</th>
+						<th scope="col">Пол</th>
+						<th scope="col">Дата рождения</th>
+						<th scope="col">Страна</th>
+						<th scope="col">Регион</th>
+						<th scope="col">Район</th>
+						<th scope="col">Город</th>
+						<th scope="col">Улица</th>
+						<th scope="col">Дом</th>
+						<th scope="col">Квартира</th>
+						<th scope="col">Номер телефона</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Data.Database.Model.Student student in students)
+					{
+
+						<tr>
+							<th scope="row">@student.id_student</th>
+							<td>@student.surname</td>
+							<td>@student.name</td>
+							<td>@student.patronymic</td>
+							<td>@student.gender</td>
+							<td>@student.date_of_birth</td>
+							<td>@student.country</td>
+							<td>@student.region</td>
+							<td>@student.district</td>
+							<td>@student.city</td>
+							<td>@student.street</td>
+							<td>@student.house</td>
+							<td>@student.apartment</td>
+							<td>@student.phonenumber</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	</div>
 </div>
 
 @code {
+	private bool loading = true;
 
+	private List<Data.Database.Model.Student> students;
+
+	private async Task LoadStudents()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			students = await db.Students.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadStudents();
+	}
 }

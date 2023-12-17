@@ -1,14 +1,54 @@
 ﻿@page "/admin/subjects"
+@using Microsoft.EntityFrameworkCore
 
+@inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
 
 <div>
 	<div class="container h-50 py-10">
-		Предметы
+		@if (!loading)
+		{
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Название предмета</th>
+						<th scope="col">Специализация</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (Data.Database.Model.Subject subject in subjects)
+					{
+						<tr>
+							<th scope="row">@subject.id_subject</th>
+							<td>@subject.name</td>
+							<td>@subject.specialization</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
 	</div>
 </div>
 
 @code {
+	private bool loading = true;
 
+	private List<Data.Database.Model.Subject> subjects;
+
+	private async Task LoadSubjects()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			subjects = await db.Subjects.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadSubjects();
+	}
 }
