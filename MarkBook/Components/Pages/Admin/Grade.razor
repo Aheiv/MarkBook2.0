@@ -21,11 +21,13 @@
 				<tbody>
 					@foreach (Data.Database.Model.Grade grade in grades)
 					{
+						string test = "Иванов Иван Иванович";
 
 						<tr>
 							<th scope="row">@grade.id_grade</th>
 							<td>@grade.name</td>
 							<td>@grade.subname</td>
+							<td>@test</td>
 						</tr>
 					}
 				</tbody>

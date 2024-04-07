@@ -1,0 +1,93 @@
+﻿@page "/teacher/grades"
+@using Microsoft.EntityFrameworkCore
+
+@inject IDbContextFactory<Data.Database.Context> DbFactory
+@layout Components.Layout.MainLayout
+@rendermode InteractiveServer
+
+<div>
+	<div class="container h-50 py-10">
+		@if (!loading){
+		
+			<table class="table table-striped">
+				<thead>
+						
+					<tr>
+						<th scope="col">#</th>
+						@for (int i = 0; i < dateend.DayOfYear - date.DayOfYear; i++)
+						{
+							<th scope="row" nowrap>@date.AddDays(i).Day.@date.AddDays(i).Month</th>
+						}
+						
+					</tr>
+				
+				</thead>
+				<tbody>
+					<tr>
+						<th scope="row">afs</th>
+					</tr>
+				</tbody>
+			</table>
+		}
+	</div>
+</div>
+
+@code {
+	private bool loading = true;
+
+	private List<Data.Database.Model.Student> students;
+
+	private async Task LoadStudents()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			students = await db.Students.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadMarks();
+		await LoadSubjects();
+	}
+	private List<Data.Database.Model.Mark> marks;
+
+	private async Task LoadMarks()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			marks = await db.Marks.ToListAsync();
+		}
+		loading = false;
+	}
+
+	private List<Data.Database.Model.Subject> subjects;
+
+	private async Task LoadSubjects()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			subjects = await db.Subjects.ToListAsync();
+		}
+		loading = false;
+	}
+
+	private List<Data.Database.Model.Subject_Student_Mark> s_s_m;
+
+	private async Task LoadS_S_M()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			s_s_m = await db.Subject_Student_Mark.ToListAsync();
+		}
+		loading = false;
+	}
+
+	DateOnly date = new DateOnly (2024, 4, 1);
+	DateOnly dateend = new DateOnly(2024, 5, 25);
+}

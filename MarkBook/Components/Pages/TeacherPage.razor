@@ -1,0 +1,32 @@
+﻿@page "/teacher"
+@inject NavigationManager navigation
+
+@rendermode InteractiveServer
+
+<PageTitle>Меню учителя</PageTitle>
+<h5>       Добро пожаловать, teacher</h5>
+<div>
+	<div class="container h-100 py-5">
+		<div class="row h-100 justify-content-center align-items-center">
+			<div class="col-6 w-50 h-50">
+				<div class="position-relative">
+					<div class="position-absolute top-50 start-50 translate-middle my-4">
+						<button type="button" class="btn btn-outline-info" @onclick="RedirectToGrades">Проставление оценок</button>
+						<button type="button" class="btn btn-outline-info" @onclick="RedirectToCalendar">Календарно-тематический план</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	private void RedirectToGrades()
+	{
+		navigation.NavigateTo("/teacher/grades");
+	}
+	private void RedirectToCalendar()
+	{
+		navigation.NavigateTo("/teacher/calendar");
+	}
+}
