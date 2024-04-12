@@ -1,39 +1,298 @@
 ﻿@page "/teacher/grades"
 @using Microsoft.EntityFrameworkCore
-
+@inject NavigationManager navigation
 @inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.MainLayout
 @rendermode InteractiveServer
+<style>
+	table {
+		width: 2000px;
+		border-spacing: 0;
+	}
+
+	td,  {
+		border: solid 1px;
+		white-space: nowrap;
+		border-top-width: 0px;
+	}
+
+	.container {
+		width: 1800px;
+		overflow: scroll;
+		margin-left: 5em;
+		overflow-y: hidden;
+		padding: 0;
+	}
+	.headcol{
+		position: absolute;
+		left: 0;
+		top: auto;
+		border-top-width: 1px;
+	}
+	</style>
 
 <div>
+	@if (!loading)
+		{
+			<label for="subject">Предмет</label>
+			<InputSelect name="subject" @bind-Value="ssubject">
+				@foreach (Data.Database.Model.Subject subject in subjects)
+				{
+				<option value="@subject.name">@subject.name</option>
+				}
+			</InputSelect>
+			<label for="quarter">Четверть</label>
+			<InputSelect name="quarter" @bind-Value="quarter">
+				<option value="1-ая">1-ая</option>
+				<option value="2-ая">2-ая</option>
+				<option value="3-я">3-я</option>
+				<option value="4-ая">4-ая</option>
+			</InputSelect>
+			<label for="grade">Класс</label>
+			<InputSelect name="grade" @bind-Value="ggrade">
+				@foreach(Data.Database.Model.Grade grade in grades)
+				{
+				@if (tmp != grade.name.ToString() && tmp != grade.subname.ToString())
+				{
+						string full = grade.name + grade.subname;
+						<option value="@full">@full</option>
+				}
+					tmp = grade.name.ToString();
+				}
+			</InputSelect>
 	<div class="container h-50 py-10">
-		@if (!loading){
-		
 			<table class="table table-striped">
 				<thead>
-						
+
 					<tr>
-						<th scope="col">#</th>
-						@for (int i = 0; i < dateend.DayOfYear - date.DayOfYear; i++)
+						<th scope="row">ФИО\Дата</th>
+						@if (quarter == "1-ая")
 						{
-							<th scope="row" nowrap>@date.AddDays(i).Day.@date.AddDays(i).Month</th>
+							@for (int i = 0; i < dateend1.DayOfYear - date1.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@date1.AddDays(i).Day/@date1.AddDays(i).Month/@date1.AddDays(i).Year</th>
+							}
+							<th scope="row" nowrap>Оценка за четверть</th>
 						}
-						
+						else if (quarter == "2-ая")
+						{
+							@for (int i = 0; i < dateend2.DayOfYear - date2.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@date2.AddDays(i).Day/@date2.AddDays(i).Month/@date2.AddDays(i).Year</th>
+							}
+							<th scope="row" nowrap>Оценка за четверть</th>
+						}
+						else if (quarter == "3-я")
+						{
+							@for (int i = 0; i < dateend3.DayOfYear - date3.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@date3.AddDays(i).Day/@date3.AddDays(i).Month/@date3.AddDays(i).Year</th>
+							}
+							<th scope="row" nowrap>Оценка за четверть</th>
+						}
+						else if (quarter == "4-ая")
+						{
+							@for (int i = 0; i < dateend4.DayOfYear - date4.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@date4.AddDays(i).Day/@date4.AddDays(i).Month/@date4.AddDays(i).Year</th>
+							}
+							<th scope="row" nowrap>Оценка за четверть</th>
+						}
+
 					</tr>
 				
 				</thead>
 				<tbody>
-					<tr>
-						<th scope="row">afs</th>
-					</tr>
+					@foreach (Data.Database.Model.Grade grade in grades.Where(g => g.name.ToString() + g.subname == ggrade))
+					{
+						@foreach (Data.Database.Model.Student student in students.Where(s => s.Grade.id_grade == grade.id_grade))
+						{
+							<tr>
+								
+								<th class="headcol">@student.surname @student.name.Substring(0, 1).@student.patronymic.Substring(0, 1)</th>
+								
+									@foreach (Data.Database.Model.Subject subject in subjects.Where(su => su.name == ssubject))
+									{
+									@foreach (Data.Database.Model.Subject_Student_Mark sssm in s_s_m.Where(ssm => ssm.Subject.id_subject == subject.id_subject
+																													&& ssm.Student.id_student == student.id_student))
+									{
+											@foreach (Data.Database.Model.Date dat in dates)
+											{
+										for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+										{
+											if (quarter == "1-ая")
+											{
+												int? avg = 0;
+												int? num = 0;
+													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
+													{
+														if (sssm.Mark.grade != null)
+														{
+															{
+																avg += sssm.Mark.grade;
+																num++;
+															}
+															<td>
+																<input value="@sssm.Mark.grade" class="w-100" />
+															</td>
+														}
+														else if (sssm.Mark.appointment != null)
+														{
+															<td>
+																<input value="@sssm.Mark.appointment" class="w-100" />
+															</td>
+														}
+													}
+													else
+													{
+														<td>
+															<input value="" class="w-100" />
+														</td>
+													}
+
+												if (num != 0)
+												{
+													avg = avg / num;
+														<td>@avg</td>
+												}
+											}
+											if (quarter == "2-ая")
+											{
+												int? avg = 0;
+												int? num = 0;
+													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
+													{
+														if (sssm.Mark.grade != null)
+														{
+															{
+																avg += sssm.Mark.grade;
+																num++;
+															}
+
+															<td>
+																<input value="@sssm.Mark.grade" class="w-100" />
+															</td>
+														}
+														else if (sssm.Mark.appointment != null)
+														{
+															<td>
+																<input value="@sssm.Mark.appointment" class="w-100" />
+															</td>
+														}
+													else
+													{
+														<td>
+															<input value="" class="w-100" />
+														</td>
+													}
+
+												}
+												if (num != 0)
+												{
+													avg = avg / num;
+												}
+												<td>@avg</td>
+											}
+
+											if (quarter == "3-я")
+											{
+												int? avg = 0;
+												int? num = 0;
+													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
+													{
+														if (sssm.Mark.grade != null)
+														{
+															{
+																avg += sssm.Mark.grade;
+																num++;
+															}
+															<td>
+																<input value="@sssm.Mark.grade" class="w-100" />
+															</td>
+														}
+														else if (sssm.Mark.appointment != null)
+														{
+															<td>
+																<input value="@sssm.Mark.appointment" class="w-100" />
+															</td>
+														}
+													}
+													else
+													{
+														<td>
+															<input value="" class="w-100" />
+														</td>
+													}
+												if (num != 0)
+												{
+													avg = avg / num;
+												}
+												<td>@avg</td>
+											}
+											if (quarter == "4-ая")
+											{
+												int? avg = 0;
+												int? num = 0;
+													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
+													{
+														if (sssm.Mark.grade != null)
+														{
+															{
+																avg += sssm.Mark.grade;
+																num++;
+															}
+															<td>
+																<input value="@sssm.Mark.grade" class="w-100" />
+															</td>
+														}
+														else if (sssm.Mark.appointment != null)
+														{
+															<td>
+																<input value="@sssm.Mark.appointment" class="w-100" />
+															</td>
+														}
+													}
+													else
+													{
+														<td>
+															<input value="" class="w-100" />
+														</td>
+													}
+												if (num != 0)
+												{
+													avg = avg / num;
+												}
+												<td>@avg</td>
+											}
+										}
+									}
+									}
+								}
+								
+							</tr>
+						}
+					}
 				</tbody>
 			</table>
-		}
 	</div>
+	<div class="container h-50 py-10"><button>Сохранить оценки</button></div>
+	}	
 </div>
 
 @code {
 	private bool loading = true;
+	private string ssubject = "Математика";
+	private string quarter = "1-ая";
+	private string ggrade = "7Б";
+	private string letter;
+	private int[] quarterDatesCount = new int[4];
+	string tmp = " ";
+	string tmp2 = " ";
+
+	private void Refresh()
+	{
+		navigation.Refresh(forceReload: true);
+	}
 
 	private List<Data.Database.Model.Student> students;
 
@@ -42,7 +301,7 @@
 		using (var db = DbFactory.CreateDbContext())
 		{
 			loading = true;
-			students = await db.Students.ToListAsync();
+			students = await db.Students.Include(s => s.Grade).ToListAsync();
 		}
 		loading = false;
 	}
@@ -51,6 +310,11 @@
 	{
 		await LoadMarks();
 		await LoadSubjects();
+		await LoadGrades();
+		await LoadStudents();
+		await LoadS_S_M();
+		await LoadStudents();
+		await LoadDates();
 	}
 	private List<Data.Database.Model.Mark> marks;
 
@@ -83,11 +347,43 @@
 		using (var db = DbFactory.CreateDbContext())
 		{
 			loading = true;
-			s_s_m = await db.Subject_Student_Mark.ToListAsync();
+			s_s_m = await db.Subject_Student_Mark.Include(s => s.Mark).Include(s => s.Student).ToListAsync();
+			subjects = await db.Subjects.ToListAsync();
+			marks = await db.Marks.ToListAsync();
+			students = await db.Students.ToListAsync();
+		}
+		loading = false;
+	}
+	private List<Data.Database.Model.Grade> grades;
+
+	private async Task LoadGrades()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			grades = await db.Grades.ToListAsync();
 		}
 		loading = false;
 	}
 
-	DateOnly date = new DateOnly (2024, 4, 1);
-	DateOnly dateend = new DateOnly(2024, 5, 25);
+	private List<Data.Database.Model.Date> dates;
+
+	private async Task LoadDates()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading=true;
+			dates = await db.Dates.ToListAsync();
+		}
+		loading = false;
+	}
+
+	DateOnly date1 = new DateOnly(2023, 9, 4);
+	DateOnly dateend1 = new DateOnly(2023, 10, 27);
+	DateOnly date2 = new DateOnly(2023, 11, 6);
+	DateOnly dateend2 = new DateOnly(2023, 12, 26);
+	DateOnly date3 = new DateOnly(2024, 1, 15);
+	DateOnly dateend3 = new DateOnly(2024, 3, 22);
+	DateOnly date4 = new DateOnly(2024, 4, 1);
+	DateOnly dateend4 = new DateOnly(2024, 5, 25);
 }

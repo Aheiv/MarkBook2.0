@@ -1,4 +1,5 @@
 ﻿using MarkBook.Components.Pages;
+using MarkBook.Components.Pages.Teacher;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,7 +11,8 @@ namespace MarkBook.Data.Database.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Grade()
         {
-            Schedules = new HashSet<Schedule>();
+			Students = new HashSet<Student>();
+			Schedules = new HashSet<Schedule>();
         }
 
         [Key]
@@ -21,7 +23,8 @@ namespace MarkBook.Data.Database.Model
         [StringLength(1)]
         public string subname { get; set; }
 
-        public virtual Student Student { get; set; }
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+		public virtual ICollection<Student> Students { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Schedule> Schedules { get; set; }

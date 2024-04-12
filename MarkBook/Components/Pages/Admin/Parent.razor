@@ -1,6 +1,7 @@
 ﻿@page "/admin/parents"
 @using Microsoft.EntityFrameworkCore
 
+@inject NavigationManager navigation
 @inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
@@ -17,14 +18,17 @@
 						<th scope="col">Имя</th>
 						<th scope="col">Отчество</th>
 						<th scope="col">Пол</th>
-						<th scope="col">Дата рождения</th>
 						<th scope="col">Номер телефона</th>
+						<th scope="col">Место работы</th>
+						<th scope="col">Профессия</th>
+						<th scope="col"></th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (Data.Database.Model.Parent parent in parents)
 					{
 						string patronymic = parent.patronymic == null ? "-" : parent.patronymic;
+						var pID = parent.id_parent;
 
 						<tr>
 							<th scope="row">@parent.id_parent</th>
@@ -32,17 +36,30 @@
 							<td>@parent.name</td>
 							<td>@patronymic</td>
 							<td>@parent.gender</td>
-							<td>@parent.date_of_birth.ToLongDateString()</td>
 							<td>@parent.phonenumber</td>
+							<td>@parent.workplace</td>
+							<td>@parent.profession</td>
+							<td><button class="btn btn-danger" @onclick="@(() => {DeleteParent(pID);})">Удалить</button>
+								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAPar(pID);})">Изменить</button></td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
+		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAPar(0);})">Добавить родителя</button>
 	</div>
 </div>
 
 @code {
+	private int RedirectToAPar(int n)
+	{
+		if (n == 0) navigation.NavigateTo("/admin/parents/addparents/0");
+		else
+		{
+			navigation.NavigateTo($"/admin/parents/addparents/{n}");
+		}
+		return n;
+	}
 	private bool loading = true;
 
 	private List<Data.Database.Model.Parent> parents;
@@ -55,6 +72,31 @@
 			parents = await db.Parents.ToListAsync();
 		}
 		loading = false;
+
+	}
+
+	private async Task DeleteParent(int id)
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			try
+			{
+				var parentToRemove = await db.Parents
+					.FirstAsync(parent => parent.id_parent == id);
+
+				db.Parents.Remove(parentToRemove);	
+				db.SaveChanges();
+				StateHasChanged();
+				await db.SaveChangesAsync();
+				navigation.Refresh(forceReload: true);
+
+			}
+			catch
+			{
+				Exception e = new Exception("ошибка");
+			}
+
+		}
 	}
 
 	protected override async Task OnInitializedAsync()

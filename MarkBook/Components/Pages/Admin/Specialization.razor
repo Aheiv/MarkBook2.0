@@ -13,7 +13,7 @@
 				<thead>
 					<tr>
 						<th scope="col">#</th>
-						<th scope="col">Тип специализации</th>
+						<th scope="col">Предмет</th>
 						<th scope="col">ФИО учителя</th>
 					</tr>
 				</thead>
@@ -24,7 +24,7 @@
 
 						<tr>
 							<th scope="row">@specialization.id_specialization</th>
-							<td>@specialization.type</td>
+							<td>@specialization.Subject.name</td>
 							<td>@teacherFullName</td>
 						</tr>
 					}
@@ -44,7 +44,7 @@
 		using (var db = DbFactory.CreateDbContext())
 		{
 			loading = true;
-			specializations = await db.Specializations.Include(x => x.Teacher).ToListAsync();
+			specializations = await db.Specializations.Include(x => x.Teacher).Include(x => x.Subject).ToListAsync();
 		}
 		loading = false;
 	}

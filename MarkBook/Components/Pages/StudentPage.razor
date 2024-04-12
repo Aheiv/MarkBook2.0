@@ -1,12 +1,11 @@
-﻿@page "/teacher"
+﻿@page "/student"
 @inject NavigationManager navigation
 @layout Components.Layout.LeaveLayout
 
 @rendermode InteractiveServer
 
-<PageTitle>Меню учителя</PageTitle>
+<PageTitle>Меню ученика</PageTitle>
 <div>
-
 </div>
 <div>
 	<div class="container h-100 py-5">
@@ -14,8 +13,8 @@
 			<div class="col-6 w-50 h-50">
 				<div class="position-relative">
 					<div class="position-absolute top-50 start-50 translate-middle my-4">
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToGrades">Проставление оценок</button>
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToCalendar">Календарно-тематический план</button>
+						<button type="button" class="btn btn-outline-info" @onclick="RedirectToGrades">Просмотр оценок</button>
+						<button type="button" class="btn btn-outline-info" @onclick="RedirectToSchedule">Расписание</button>
 					</div>
 				</div>
 			</div>
@@ -26,10 +25,10 @@
 @code {
 	private void RedirectToGrades()
 	{
-		navigation.NavigateTo("/teacher/grades");
+		navigation.NavigateTo("/student/grades");
 	}
-	private void RedirectToCalendar()
+	private void RedirectToSchedule()
 	{
-		navigation.NavigateTo("/teacher/calendar");
+		navigation.NavigateTo("/student/schedule");
 	}
 }

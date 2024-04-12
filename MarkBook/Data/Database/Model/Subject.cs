@@ -10,6 +10,7 @@ namespace MarkBook.Data.Database.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Subject()
         {
+            Specializations = new HashSet<Specialization>();
             Schedules = new HashSet<Schedule>();
             Subject_Student_Mark = new HashSet<Subject_Student_Mark>();
         }
@@ -30,5 +31,8 @@ namespace MarkBook.Data.Database.Model
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Subject_Student_Mark> Subject_Student_Mark { get; set; }
-    }
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+		public virtual ICollection<Specialization> Specializations { get; set; }
+	}
 }

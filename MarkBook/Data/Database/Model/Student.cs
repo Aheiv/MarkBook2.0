@@ -10,7 +10,6 @@ namespace MarkBook.Data.Database.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Student()
         {
-            Grades = new HashSet<Grade>();
             Subject_Student_Mark = new HashSet<Subject_Student_Mark>();
             Student_Parent = new HashSet<Student_Parent>();
         }
@@ -34,7 +33,7 @@ namespace MarkBook.Data.Database.Model
         public string gender { get; set; }
 
         [Column(TypeName = "date")]
-        public DateTime date_of_birth { get; set; }
+        public DateOnly date_of_birth { get; set; }
 
         [Required]
         [StringLength(30)]
@@ -61,15 +60,14 @@ namespace MarkBook.Data.Database.Model
         public string house { get; set; }
 
         [StringLength(30)]
-        public string apartment { get; set; }
+        public string? apartment { get; set; }
 
         [StringLength(12)]
         public string phonenumber { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Grade> Grades { get; set; }
+		public virtual Grade Grade { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Subject_Student_Mark> Subject_Student_Mark { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

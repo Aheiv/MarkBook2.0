@@ -21,7 +21,7 @@ namespace MarkBook.Data.Database.Model
         public string? appointment { get; set; }
 
         [Column(TypeName = "date")]
-        public DateTime? date { get; set; }
+        public DateOnly date { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Subject_Student_Mark> Subject_Student_Mark { get; set; }

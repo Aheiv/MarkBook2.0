@@ -14,20 +14,16 @@
 					<tr>
 						<th scope="col">#</th>
 						<th scope="col">Класс</th>
-						<th scope="col">Субкласс</th>
-						<th scope="col">Студент</th>
+						<th scope="col">Литера</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (Data.Database.Model.Grade grade in grades)
 					{
-						string test = "Иванов Иван Иванович";
-
 						<tr>
 							<th scope="row">@grade.id_grade</th>
 							<td>@grade.name</td>
 							<td>@grade.subname</td>
-							<td>@test</td>
 						</tr>
 					}
 				</tbody>

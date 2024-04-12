@@ -1,6 +1,7 @@
 ﻿@page "/login"
 @using MarkBook.Data.Login
 @rendermode InteractiveServer
+@inject NavigationManager navigation
 
 <PageTitle>Вход</PageTitle>
 
@@ -28,17 +29,33 @@
 				<button type="submit" class="btn btn-outline-info">Войти в систему</button>
 			</div>
 		</EditForm>
-		<div class="position-absolute top-50 end-0 translate-middle-y my-5">
-			<img style="width: 30%; height: 30%;" src="https://gas-kvas.com/grafic/uploads/posts/2023-10/1696468960_gas-kvas-com-p-kartinki-globus-s-knigami-1.jpg" class="img-fluid " alt="kartinka">
-		</div>
+		<Alert></Alert>
 	</div>
 </div>
 
 @code {
 	private LoginModel loginModel = new LoginModel();
 
-	private void Submit()
+	private async Task Submit()
 	{
-		
+		if (loginModel.Login == "admin" && loginModel.Password == "123456")
+		{
+			navigation.NavigateTo("/admin/grades");
+		}
+		else if (loginModel.Login == "Teacher23" && loginModel.Password == "1235")
+		{
+			navigation.NavigateTo("/teacher");
+		}
+		else if (loginModel.Login == "+79005903425" && loginModel.Password == "3212")
+		{
+			navigation.NavigateTo("/student");
+		}
+		else
+		{
+			if (loginModel.Login == "admin" || loginModel.Login == "Teacher23" || loginModel.Login == "+79005903425") { }
+			//встваить месседж бокс
+			else if (loginModel.Password == "123456" || loginModel.Password == "1235" || loginModel.Password == "3212") { }
+			//вставить месседж бокс
+		}
 	}
 }

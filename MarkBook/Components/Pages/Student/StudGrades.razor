@@ -1,0 +1,180 @@
+﻿@page "/student/grades"
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager navigation
+@inject IDbContextFactory<Data.Database.Context> DbFactory
+@layout Components.Layout.MainLayout
+@rendermode InteractiveServer
+<style>
+	table {
+		width: 2000px;
+		border-spacing: 0;
+	}
+
+	td, {
+		border: solid 1px;
+		white-space: nowrap;
+		border-top-width: 0px;
+	}
+
+	.container {
+		width: 1800px;
+		overflow: scroll;
+		margin-left: 5em;
+		overflow-y: hidden;
+		padding: 0;
+	}
+
+	.headcol {
+		position: absolute;
+		left: 0;
+		top: auto;
+		border-top-width: 1px;
+	}
+</style>
+<div>
+	@if (!loading)
+		{
+		<label for="quarter">Четверть</label>
+		<InputSelect name="quarter" @bind-Value="quarter">
+			<option value="1-ая">1-ая</option>
+			<option value="2-ая">2-ая</option>
+			<option value="3-я">3-я</option>
+			<option value="4-ая">4-ая</option>
+		</InputSelect>
+		<label for="student">Ученик</label>
+		<InputSelect name="sstudent" @bind-Value="sstudent">
+			@foreach (Data.Database.Model.Student student in students)
+			{
+				string fio = $"{student.surname} {student.name.Substring(0, 1)}.{student.patronymic.Substring(0, 1)}";
+				<option value="@fio">@fio</option>
+			}
+		</InputSelect>
+		}
+		<div class="container h-50 py-10">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="row">Предмет\Дата</th>
+					@foreach (Data.Database.Model.Date dat in dates)
+					{
+						@if (quarter == "1-ая")
+						{
+							@for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@dat.date_start.AddDays(i).Day/@dat.date_start.AddDays(i).Month/@dat.date_start.AddDays(i).Year</th>
+							}
+						}
+						else if (quarter == "2-ая")
+						{
+							@for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@dat.date_start.AddDays(i).Day/@dat.date_start.AddDays(i).Month/@dat.date_start.AddDays(i).Year</th>
+							}
+						}
+						else if (quarter == "3-я")
+						{
+							@for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@dat.date_start.AddDays(i).Day/@dat.date_start.AddDays(i).Month/@dat.date_start.AddDays(i).Year</th>
+							}
+						}
+						else if (quarter == "4-ая")
+						{
+							@for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+							{
+								<th scope="row" nowrap>@dat.date_start.AddDays(i).Day/@dat.date_start.AddDays(i).Month/@dat.date_start.AddDays(i).Year</th>
+							}
+						}
+					}
+				</tr>
+				</thead>
+				<tbody>
+
+				</tbody>
+			</table>
+		</div>
+</div>
+@code {
+	private bool loading = true;
+	private string quarter = "1-ая";
+	private string sstudent;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadMarks();
+		await LoadSubjects();
+		await LoadGrades();
+		await LoadStudents();
+		await LoadS_S_M();
+		await LoadDates();
+	}
+	private List<Data.Database.Model.Student> students;
+
+	private async Task LoadStudents()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			students = await db.Students.Include(s => s.Grade).ToListAsync();
+		}
+		loading = false;
+	}
+	private List<Data.Database.Model.Mark> marks;
+
+	private async Task LoadMarks()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			marks = await db.Marks.ToListAsync();
+		}
+		loading = false;
+	}
+
+	private List<Data.Database.Model.Subject> subjects;
+
+	private async Task LoadSubjects()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			subjects = await db.Subjects.ToListAsync();
+		}
+		loading = false;
+	}
+
+	private List<Data.Database.Model.Subject_Student_Mark> s_s_m;
+
+	private async Task LoadS_S_M()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			s_s_m = await db.Subject_Student_Mark.Include(s => s.Mark).Include(s => s.Student).Include(s => s.Subject).ToListAsync();
+		}
+		loading = false;
+	}
+	private List<Data.Database.Model.Grade> grades;
+
+	private async Task LoadGrades()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			grades = await db.Grades.ToListAsync();
+		}
+		loading = false;
+	}
+	private List<Data.Database.Model.Date> dates;
+
+	private async Task LoadDates()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			dates = await db.Dates.ToListAsync();
+		}
+		loading = false;
+	}
+}

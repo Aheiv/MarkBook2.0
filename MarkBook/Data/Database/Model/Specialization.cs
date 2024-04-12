@@ -10,11 +10,7 @@ namespace MarkBook.Data.Database.Model
         [Key]
         public int id_specialization { get; set; }
 
-        [Required]
-        [StringLength(30)]
-        public string type { get; set; }
-
-
+        public virtual Subject Subject { get; set; }
         public virtual Teacher Teacher { get; set; }
     }
 }
