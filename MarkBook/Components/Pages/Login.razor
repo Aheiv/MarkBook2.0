@@ -1,7 +1,9 @@
 ﻿@page "/login"
 @using MarkBook.Data.Login
 @rendermode InteractiveServer
+@inject IDialogService iDialogService
 @inject NavigationManager navigation
+@layout Components.Layout.MainLayout
 
 <PageTitle>Вход</PageTitle>
 
@@ -29,14 +31,14 @@
 				<button type="submit" class="btn btn-outline-info">Войти в систему</button>
 			</div>
 		</EditForm>
-		<Alert></Alert>
 	</div>
 </div>
 
 @code {
+
 	private LoginModel loginModel = new LoginModel();
 
-	private async Task Submit()
+	private void Submit()
 	{
 		if (loginModel.Login == "admin" && loginModel.Password == "123456")
 		{
@@ -52,10 +54,15 @@
 		}
 		else
 		{
-			if (loginModel.Login == "admin" || loginModel.Login == "Teacher23" || loginModel.Login == "+79005903425") { }
-			//встваить месседж бокс
-			else if (loginModel.Password == "123456" || loginModel.Password == "1235" || loginModel.Password == "3212") { }
-			//вставить месседж бокс
+			if (loginModel.Login != "admin" || loginModel.Login != "Teacher23" || loginModel.Login != "+79005903425") 
+			{
+
+			}
+			else if (loginModel.Password == "123456" || loginModel.Password == "1235" || loginModel.Password == "3212")
+			{
+				
+			}
+
 		}
 	}
 }

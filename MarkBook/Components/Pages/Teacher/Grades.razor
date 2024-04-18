@@ -10,7 +10,7 @@
 		border-spacing: 0;
 	}
 
-	td,  {
+	td  {
 		border: solid 1px;
 		white-space: nowrap;
 		border-top-width: 0px;
@@ -110,165 +110,57 @@
 							<tr>
 								
 								<th class="headcol">@student.surname @student.name.Substring(0, 1).@student.patronymic.Substring(0, 1)</th>
-								
-									@foreach (Data.Database.Model.Subject subject in subjects.Where(su => su.name == ssubject))
+								@foreach (Data.Database.Model.Subject subject in subjects.Where(s => s.name == ssubject))
+								{
+									@foreach (Data.Database.Model.Mark mark in marks)
 									{
-									@foreach (Data.Database.Model.Subject_Student_Mark sssm in s_s_m.Where(ssm => ssm.Subject.id_subject == subject.id_subject
-																													&& ssm.Student.id_student == student.id_student))
+									@foreach (Data.Database.Model.Subject_Student_Mark ssm in s_s_m.Where(ss => ss.Student.id_student == student.id_student &&
+																												ss.Subject.id_subject == subject.id_subject &&
+																												ss.Mark.id_mark == mark.id_mark))
 									{
-											@foreach (Data.Database.Model.Date dat in dates)
+											int? avg = 0;
+											int? num = 0;
+											@foreach (Data.Database.Model.Date dat in dates.Where(d => d.quarter == quarter))
 											{
-										for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
-										{
-											if (quarter == "1-ая")
-											{
-												int? avg = 0;
-												int? num = 0;
-													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
+												for (int i = 0; i < dat.date_end.DayOfYear - dat.date_start.DayOfYear; i++)
+												{
+													if (ssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
 													{
-														if (sssm.Mark.grade != null)
+														if (ssm.Mark.grade != null)
 														{
 															{
-																avg += sssm.Mark.grade;
+																avg += ssm.Mark.grade;
 																num++;
 															}
 															<td>
-																<input value="@sssm.Mark.grade" class="w-100" />
+																<input value="@ssm.Mark.grade" class="w-100" />
 															</td>
 														}
-														else if (sssm.Mark.appointment != null)
+														else if (ssm.Mark.appointment != null)
 														{
 															<td>
-																<input value="@sssm.Mark.appointment" class="w-100" />
+																<input value="@ssm.Mark.appointment" class="w-100" />
 															</td>
 														}
 													}
 													else
 													{
 														<td>
-															<input value="" class="w-100" />
+															<input value=" " class="w-100" />
 														</td>
 													}
-
-												if (num != 0)
-												{
-													avg = avg / num;
-														<td>@avg</td>
 												}
+
 											}
-											if (quarter == "2-ая")
+											if (num != 0)
 											{
-												int? avg = 0;
-												int? num = 0;
-													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
-													{
-														if (sssm.Mark.grade != null)
-														{
-															{
-																avg += sssm.Mark.grade;
-																num++;
-															}
-
-															<td>
-																<input value="@sssm.Mark.grade" class="w-100" />
-															</td>
-														}
-														else if (sssm.Mark.appointment != null)
-														{
-															<td>
-																<input value="@sssm.Mark.appointment" class="w-100" />
-															</td>
-														}
-													else
-													{
-														<td>
-															<input value="" class="w-100" />
-														</td>
-													}
-
-												}
-												if (num != 0)
-												{
-													avg = avg / num;
-												}
+												avg = avg / num;
 												<td>@avg</td>
 											}
 
-											if (quarter == "3-я")
-											{
-												int? avg = 0;
-												int? num = 0;
-													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
-													{
-														if (sssm.Mark.grade != null)
-														{
-															{
-																avg += sssm.Mark.grade;
-																num++;
-															}
-															<td>
-																<input value="@sssm.Mark.grade" class="w-100" />
-															</td>
-														}
-														else if (sssm.Mark.appointment != null)
-														{
-															<td>
-																<input value="@sssm.Mark.appointment" class="w-100" />
-															</td>
-														}
-													}
-													else
-													{
-														<td>
-															<input value="" class="w-100" />
-														</td>
-													}
-												if (num != 0)
-												{
-													avg = avg / num;
-												}
-												<td>@avg</td>
-											}
-											if (quarter == "4-ая")
-											{
-												int? avg = 0;
-												int? num = 0;
-													if (sssm.Mark.date.DayOfYear == dat.date_end.AddDays(i).DayOfYear)
-													{
-														if (sssm.Mark.grade != null)
-														{
-															{
-																avg += sssm.Mark.grade;
-																num++;
-															}
-															<td>
-																<input value="@sssm.Mark.grade" class="w-100" />
-															</td>
-														}
-														else if (sssm.Mark.appointment != null)
-														{
-															<td>
-																<input value="@sssm.Mark.appointment" class="w-100" />
-															</td>
-														}
-													}
-													else
-													{
-														<td>
-															<input value="" class="w-100" />
-														</td>
-													}
-												if (num != 0)
-												{
-													avg = avg / num;
-												}
-												<td>@avg</td>
-											}
 										}
 									}
-									}
 								}
-								
 							</tr>
 						}
 					}
@@ -308,13 +200,12 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await LoadMarks();
-		await LoadSubjects();
-		await LoadGrades();
-		await LoadStudents();
 		await LoadS_S_M();
 		await LoadStudents();
 		await LoadDates();
+		await LoadMarks();
+		await LoadSubjects();
+		await LoadGrades();
 	}
 	private List<Data.Database.Model.Mark> marks;
 
@@ -347,7 +238,7 @@
 		using (var db = DbFactory.CreateDbContext())
 		{
 			loading = true;
-			s_s_m = await db.Subject_Student_Mark.Include(s => s.Mark).Include(s => s.Student).ToListAsync();
+			s_s_m = await db.Subject_Student_Mark.ToListAsync();
 			subjects = await db.Subjects.ToListAsync();
 			marks = await db.Marks.ToListAsync();
 			students = await db.Students.ToListAsync();

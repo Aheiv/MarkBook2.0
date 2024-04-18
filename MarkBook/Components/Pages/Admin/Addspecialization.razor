@@ -1,0 +1,82 @@
+﻿@page "/admin/specializations/addspecializations/{n}"
+@using Microsoft.EntityFrameworkCore
+
+@inject NavigationManager navigation
+@inject IDbContextFactory<Data.Database.Context> DbFactory
+@layout Components.Layout.MainLayout
+@rendermode InteractiveServer
+
+<div class="container h-50 py-10">
+	<div>
+		<div class="d-inline-block">
+			<p>Название</p>
+		</div>
+		<div class="d-inline-block">
+			<input @bind-value="Name" class="rounded">
+		</div>
+	</div>
+	<div>
+		<div class="d-inline-block">
+			<p>Направление</p>
+		</div>
+		<div class="d-inline-block">
+			<input @bind-value="Specialization" class="rounded">
+		</div>
+	</div>
+	<div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public string n { get; set; }
+
+	private string Name { get; set; }
+
+	private string Specialization { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await OnLoad();
+	}
+	private async Task OnLoad()
+	{
+		if (n != "0")
+		{
+			using (var db = DbFactory.CreateDbContext())
+			{
+				var subjectToEdit = await db.Subjects
+					.FirstAsync(sub => sub.id_subject == int.Parse(n));
+				Name = subjectToEdit.name;
+				Specialization = subjectToEdit.specialization;
+			}
+		}
+	}
+	private async Task AddSpecialization()
+	{
+		if (n == "0")
+		{
+			using (var db = DbFactory.CreateDbContext())
+			{
+				Data.Database.Model.Subject s = new Data.Database.Model.Subject();
+				s.name = Name;
+				s.specialization = Specialization;
+				db.Subjects.Add(s);
+				await db.SaveChangesAsync();
+			}
+		}
+		else
+		{
+			using (var db = DbFactory.CreateDbContext())
+			{
+				var subjectToEdit = await db.Subjects
+					.FirstAsync(sub => sub.id_subject == int.Parse(n));
+				subjectToEdit.name = Name;
+				subjectToEdit.specialization = Specialization;
+				db.Subjects.Update(subjectToEdit);
+				await db.SaveChangesAsync();
+			}
+		}
+		navigation.NavigateTo("/admin/subjects");
+	}
+}

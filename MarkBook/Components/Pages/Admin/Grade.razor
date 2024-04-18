@@ -1,6 +1,7 @@
 ﻿@page "/admin/grades"
 @using Microsoft.EntityFrameworkCore
 
+@inject NavigationManager navigation
 @inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
@@ -20,19 +21,34 @@
 				<tbody>
 					@foreach (Data.Database.Model.Grade grade in grades)
 					{
+						var gID = grade.id_grade;
 						<tr>
 							<th scope="row">@grade.id_grade</th>
 							<td>@grade.name</td>
 							<td>@grade.subname</td>
+							<td>
+								<button class="btn btn-danger" @onclick="@(() => {DeleteGrade(gID);})">Удалить</button>
+								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAG(gID);})">Изменить</button>
+							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
+		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAG(0);})">Добавить класс</button>
 	</div>
 </div>
 
 @code {
+	private int RedirectToAG(int n)
+	{
+		if (n == 0) navigation.NavigateTo("/admin/grades/addgrades/0");
+		else
+		{
+			navigation.NavigateTo($"/admin/grades/addgrades/{n}");
+		}
+		return n;
+	}
 	private bool loading = true;
 
 	private List<Data.Database.Model.Grade> grades;
@@ -45,6 +61,29 @@
 			grades = await db.Grades.ToListAsync();
 		}
 		loading = false;
+	}
+	private async Task DeleteGrade(int id)
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			try
+			{
+				var gradeToRemove = await db.Grades
+					.FirstAsync(grade => grade.id_grade == id);
+
+				db.Grades.Remove(gradeToRemove);
+				db.SaveChanges();
+				StateHasChanged();
+				await db.SaveChangesAsync();
+				navigation.Refresh(forceReload: true);
+
+			}
+			catch
+			{
+				Exception e = new Exception("ошибка");
+			}
+
+		}
 	}
 
 	protected override async Task OnInitializedAsync()

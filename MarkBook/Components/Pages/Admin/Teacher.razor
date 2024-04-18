@@ -1,6 +1,7 @@
 ﻿@page "/admin/teachers"
 @using Microsoft.EntityFrameworkCore
 
+@inject NavigationManager navigation
 @inject IDbContextFactory<Data.Database.Context> DbFactory
 @layout Components.Layout.AdminLayout
 @rendermode InteractiveServer
@@ -21,20 +22,37 @@
 				<tbody>
 					@foreach (Data.Database.Model.Teacher teacher in teachers)
 					{
+						var tID = teacher.id_teacher;
+
 						<tr>
 							<th scope="row">@teacher.id_teacher</th>
 							<td>@teacher.surname</td>
 							<td>@teacher.name</td>
 							<td>@teacher.patronymic</td>
+							<td>
+								<button class="btn btn-danger" @onclick="@(() => {DeleteTeacher(tID);})">Удалить</button>
+								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAT(tID);})">Изменить</button>
+							</td>
 						</tr>
+
 					}
 				</tbody>
 			</table>
 		}
+		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAT(0);})">Добавить учителя</button>
 	</div>
 </div>
 
 @code {
+	private int RedirectToAT(int n)
+	{
+		if (n == 0) navigation.NavigateTo("/admin/parents/addteachers/0");
+		else
+		{
+			navigation.NavigateTo($"/admin/parents/addteachers/{n}");
+		}
+		return n;
+	}
 	private bool loading = true;
 
 	private List<Data.Database.Model.Teacher> teachers;
@@ -47,6 +65,29 @@
 			teachers = await db.Teachers.ToListAsync();
 		}
 		loading = false;
+	}
+	private async Task DeleteTeacher(int id)
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			try
+			{
+				var teacherToRemove = await db.Teachers
+					.FirstAsync(teacher => teacher.id_teacher == id);
+
+				db.Teachers.Remove(teacherToRemove);
+				db.SaveChanges();
+				StateHasChanged();
+				await db.SaveChangesAsync();
+				navigation.Refresh(forceReload: true);
+
+			}
+			catch
+			{
+				Exception e = new Exception("ошибка");
+			}
+
+		}
 	}
 
 	protected override async Task OnInitializedAsync()

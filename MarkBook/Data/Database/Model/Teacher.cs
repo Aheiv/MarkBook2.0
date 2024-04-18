@@ -26,7 +26,7 @@ namespace MarkBook.Data.Database.Model
         public string name { get; set; }
 
         [StringLength(30)]
-        public string patronymic { get; set; }
+        public string? patronymic { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Schedule> Schedules { get; set; }
