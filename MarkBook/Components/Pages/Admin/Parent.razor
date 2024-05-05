@@ -27,26 +27,26 @@
 				<tbody>
 					@foreach (Data.Database.Model.Parent parent in parents)
 					{
-						string patronymic = parent.patronymic == null ? "-" : parent.patronymic;
-						var pID = parent.id_parent;
+						string patronymic = parent.Patronymic == null ? "-" : parent.Patronymic;
+						var pID = parent.Id;
 
 						<tr>
-							<th scope="row">@parent.id_parent</th>
-							<td>@parent.surname</td>
-							<td>@parent.name</td>
+							<th scope="row">@parent.Id</th>
+							<td>@parent.LastName</td>
+							<td>@parent.FirstName</td>
 							<td>@patronymic</td>
-							<td>@parent.gender</td>
-							<td>@parent.phonenumber</td>
-							<td>@parent.workplace</td>
-							<td>@parent.profession</td>
+							<td>@parent.PhoneNumber</td>
+							<td>@parent.Workplace</td>
+							<td>@parent.Profession</td>
 							<td><button class="btn btn-danger" @onclick="@(() => {DeleteParent(pID);})">Удалить</button>
-								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAPar(pID);})">Изменить</button></td>
+								<button type="button" class="btn btn-success" @onclick="@(() => {RedirectToAPar(pID);})">Изменить</button>
+							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
-		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAPar(0);})">Добавить родителя</button>
+		<button type="button" class="btn btn-primary" @onclick="@(() => {RedirectToAPar(0);})">Добавить родителя</button>
 	</div>
 </div>
 
@@ -82,7 +82,7 @@
 			try
 			{
 				var parentToRemove = await db.Parents
-					.FirstAsync(parent => parent.id_parent == id);
+					.FirstAsync(parent => parent.Id == id);
 
 				db.Parents.Remove(parentToRemove);	
 				db.SaveChanges();

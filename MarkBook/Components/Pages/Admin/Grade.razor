@@ -21,21 +21,21 @@
 				<tbody>
 					@foreach (Data.Database.Model.Grade grade in grades)
 					{
-						var gID = grade.id_grade;
+						var gID = grade.Id;
 						<tr>
-							<th scope="row">@grade.id_grade</th>
-							<td>@grade.name</td>
-							<td>@grade.subname</td>
+							<th scope="row">@grade.Id</th>
+							<td>@grade.Name</td>
+							<td>@grade.Subname</td>
 							<td>
 								<button class="btn btn-danger" @onclick="@(() => {DeleteGrade(gID);})">Удалить</button>
-								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAG(gID);})">Изменить</button>
+								<button type="button" class="btn btn-success" @onclick="@(() => {RedirectToAG(gID);})">Изменить</button>
 							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
-		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAG(0);})">Добавить класс</button>
+		<button type="button" class="btn btn-primary" @onclick="@(() => {RedirectToAG(0);})">Добавить класс</button>
 	</div>
 </div>
 
@@ -69,7 +69,7 @@
 			try
 			{
 				var gradeToRemove = await db.Grades
-					.FirstAsync(grade => grade.id_grade == id);
+					.FirstAsync(grade => grade.Id == id);
 
 				db.Grades.Remove(gradeToRemove);
 				db.SaveChanges();

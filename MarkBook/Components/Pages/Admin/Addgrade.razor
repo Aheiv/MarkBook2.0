@@ -53,9 +53,9 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var gradeToEdit = await db.Grades
-					.FirstAsync(grade => grade.id_grade == int.Parse(n));
-				Name = gradeToEdit.name;
-				Letter = gradeToEdit.subname;
+					.FirstAsync(grade => grade.Id == int.Parse(n));
+				Name = gradeToEdit.Name;
+				Letter = gradeToEdit.Subname;
 			}
 		}
 	}
@@ -66,8 +66,8 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				Data.Database.Model.Grade g = new Data.Database.Model.Grade();
-					g.name = Name;
-					g.subname = Letter;
+					g.Name = Name;
+					g.Subname = Letter;
 				db.Grades.Add(g);
 				await db.SaveChangesAsync();
 			}
@@ -78,9 +78,9 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 					var gradeToEdit = await db.Grades
-						.FirstAsync(grade => grade.id_grade == int.Parse(n));
-					gradeToEdit.name = Name;
-					gradeToEdit.subname = Letter;
+						.FirstAsync(grade => grade.Id == int.Parse(n));
+					gradeToEdit.Name = Name;
+					gradeToEdit.Subname = Letter;
 					db.Grades.Update(gradeToEdit);
 				await db.SaveChangesAsync();
 			}

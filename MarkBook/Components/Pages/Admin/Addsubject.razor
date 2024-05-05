@@ -16,14 +16,6 @@
 		</div>
 	</div>
 	<div>
-		<div class="d-inline-block">
-			<p>Направление</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Specialization" class="rounded">
-		</div>
-	</div>
-	<div>
 		@if (n != "0")
 		{
 			<button type="button" class="btn btn-outline-info" @onclick="AddSubject">Изменить предмет</button>
@@ -41,8 +33,6 @@
 
 	private string Name { get; set; }
 
-	private string Specialization { get; set; }
-
 	protected override async Task OnInitializedAsync()
 	{
 		await OnLoad();
@@ -54,9 +44,8 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var subjectToEdit = await db.Subjects
-					.FirstAsync(sub => sub.id_subject == int.Parse(n));
-				Name = subjectToEdit.name;
-				Specialization = subjectToEdit.specialization;
+					.FirstAsync(sub => sub.Id == int.Parse(n));
+				Name = subjectToEdit.Name;
 			}
 		}
 	}
@@ -67,8 +56,7 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				Data.Database.Model.Subject s = new Data.Database.Model.Subject();
-				s.name = Name;
-				s.specialization = Specialization;
+				s.Name = Name;
 				db.Subjects.Add(s);
 				await db.SaveChangesAsync();
 			}
@@ -78,9 +66,8 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var subjectToEdit = await db.Subjects
-					.FirstAsync(sub => sub.id_subject == int.Parse(n));
-				subjectToEdit.name = Name;
-				subjectToEdit.specialization = Specialization;
+					.FirstAsync(sub => sub.Id == int.Parse(n));
+				subjectToEdit.Name = Name;
 				db.Subjects.Update(subjectToEdit);
 				await db.SaveChangesAsync();
 			}

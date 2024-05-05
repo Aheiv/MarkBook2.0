@@ -14,8 +14,8 @@
 			<div class="col-6 w-50 h-50">
 				<div class="position-relative">
 					<div class="position-absolute top-50 start-50 translate-middle my-4">
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToGrades">Проставление оценок</button>
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToCalendar">Календарно-тематический план</button>
+						<button type="button" class="btn btn-primary" @onclick="RedirectToGrades">Журнал</button>
+						<button type="button" class="btn btn-primary" @onclick="RedirectToCalendar">Календарно-тематический план</button>
 					</div>
 				</div>
 			</div>
@@ -26,7 +26,7 @@
 @code {
 	private void RedirectToGrades()
 	{
-		navigation.NavigateTo("/teacher/grades");
+		navigation.NavigateTo("/teacher/marks");
 	}
 	private void RedirectToCalendar()
 	{

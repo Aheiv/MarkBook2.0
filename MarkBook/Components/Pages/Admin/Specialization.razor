@@ -10,33 +10,60 @@
 	<div class="container h-50 py-10">
 		@if (!loading)
 		{
+			<button type="button" class="btn btn-primary" @onclick="@(() => {RedirectToAS(0);})">Добавить связь</button>
+			<label for="subject">Предмет</label>
+			<input name="subject" @bind="ssubject" />
+			<label for="grade">Класс</label>
+			<input name="grade" @bind="ggrade" />
+			<label for="teacher">Учитель</label>
+			<input name="teacher" @bind="tteacher" />
+			<div style="height:550px; overflow-y: scroll;">
 			<table class="table table-striped">
 				<thead>
 					<tr>
 						<th scope="col">#</th>
 						<th scope="col">Предмет</th>
 						<th scope="col">ФИО учителя</th>
+						<th scope="col">Класс</th>
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (Data.Database.Model.Specialization specialization in specializations)
+					@foreach (Data.Database.Model.TeacherSubjectGrade tsg in teacherSubjectGrades)
 					{
-						string teacherFullName = $"{specialization.Teacher.surname} {specialization.Teacher.name} {specialization.Teacher.patronymic}";
-						var sID = specialization.id_specialization;
-						<tr>
-							<th scope="row">@specialization.id_specialization</th>
-							<td>@specialization.Subject.name</td>
-							<td>@teacherFullName</td>
+						string teacherFullName = $"{tsg.Teacher.last_name} {tsg.Teacher.first_name} {tsg.Teacher.patronymic}";
+						string fullGradeName = $"{tsg.Grade.Name} {tsg.Grade.Subname}";
 
+						var sID = tsg.Id;
+
+							@if (ssubject == tsg.Subject.Name.Substring(0, ssubject.Length) && ggrade == fullGradeName.Substring(0, ggrade.Length) &&
+												tteacher == teacherFullName.Substring(0, tteacher.Length))
+												{
+						<tr>
+							<th scope="row">@tsg.Id</th>
+							<td>@tsg.Subject.Name</td>
+							<td>@teacherFullName</td>
+							<td>@fullGradeName</td>
+							<td>
+								<button class="btn btn-danger" @onclick="@(() => {DeleteSpec(sID);})">Удалить</button>
+								<button type="button" class="btn btn-success" @onclick="@(() => {RedirectToAS(sID);})">Изменить</button>
+							</td>
 						</tr>
+												}
 					}
 				</tbody>
 			</table>
+			</div>
 		}
 	</div>
 </div>
 
 @code {
+	private string ggrade = "";
+
+	private string tteacher = "";
+
+	private string ssubject = "";
+
 	private int RedirectToAS(int n)
 	{
 		if (n == 0) navigation.NavigateTo("/admin/specializations/addspecializations/0");
@@ -48,27 +75,27 @@
 	}
 	private bool loading = true;
 
-	private List<Data.Database.Model.Specialization> specializations;
+	private List<Data.Database.Model.TeacherSubjectGrade> teacherSubjectGrades;
 
 	private async Task LoadSpecs()
 	{
 		using (var db = DbFactory.CreateDbContext())
 		{
 			loading = true;
-			specializations = await db.Specializations.Include(x => x.Teacher).Include(x => x.Subject).ToListAsync();
+			teacherSubjectGrades = await db.TeacherSubjectGrades.Include(x => x.Teacher).Include(x => x.Subject).Include(x => x.Grade).ToListAsync();
 		}
 		loading = false;
 	}
-	private async Task DeleteSpecialization(int id)
+	private async Task DeleteSpec(int id)
 	{
 		using (var db = DbFactory.CreateDbContext())
 		{
 			try
 			{
-				var specToRemove = await db.Specializations
-					.FirstAsync(spec => spec.id_specialization == id);
+				var specToRemove = await db.TeacherSubjectGrades
+					.FirstAsync(tsg => tsg.Id == id);
 
-				db.Specializations.Remove(specToRemove);
+				db.TeacherSubjectGrades.Remove(specToRemove);
 				db.SaveChanges();
 				StateHasChanged();
 				await db.SaveChangesAsync();

@@ -34,18 +34,10 @@
 	</div>
 	<div>
 		<div class="d-inline-block">
-			<p>Пол</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Gender" class="rounded">
-		</div>
-	</div>
-	<div>
-		<div class="d-inline-block">
 			<p>Номер телефона</p>
 		</div>
 		<div class="d-inline-block">
-			<input type="number" @bind-value="PhoneNumber" class="rounded">
+			<input type="" @bind-value="PhoneNumber" class="rounded">
 		</div>
 	</div>
 	<div>
@@ -86,9 +78,7 @@
 
 	private string? Patronymic { get; set; }
 
-	private string Gender { get; set; }
-
-	private long PhoneNumber { get; set; }
+	private string? PhoneNumber { get; set; }
 
 	private string? Workplace { get; set; }
 
@@ -105,14 +95,13 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var parentToEdit = await db.Parents
-					.FirstAsync(parent => parent.id_parent == int.Parse(n));
-				Surname = parentToEdit.surname;
-				Name = parentToEdit.name;
-				Patronymic = parentToEdit.patronymic;
-				Gender = parentToEdit.gender;
-				PhoneNumber = long.Parse(parentToEdit.phonenumber);
-				Workplace = parentToEdit.workplace;
-				Profession = parentToEdit.profession;
+					.FirstAsync(parent => parent.Id == int.Parse(n));
+				Surname = parentToEdit.LastName;
+				Name = parentToEdit.FirstName;
+				Patronymic = parentToEdit.Patronymic;
+				PhoneNumber = parentToEdit.PhoneNumber;
+				Workplace = parentToEdit.Workplace;
+				Profession = parentToEdit.Profession;
 			}
 		}
 	}
@@ -123,13 +112,12 @@
 				using (var db = DbFactory.CreateDbContext())
 				{
 					Data.Database.Model.Parent p = new Data.Database.Model.Parent();
-					p.surname = Surname;
-					p.name = Name;
-					p.patronymic = Patronymic;
-					p.gender = Gender;
-					p.phonenumber = PhoneNumber.ToString();
-					p.workplace = Workplace;
-					p.profession = Profession;
+					p.LastName= Surname;
+					p.FirstName = Name;
+					p.Patronymic = Patronymic;
+					p.PhoneNumber = PhoneNumber.ToString();
+					p.Workplace = Workplace;
+					p.Profession = Profession;
 					db.Parents.Add(p);
 					await db.SaveChangesAsync();
 				}
@@ -140,14 +128,13 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var parentToEdit = await db.Parents
-					.FirstAsync(parent => parent.id_parent == int.Parse(n));
-				parentToEdit.surname = Surname;
-				parentToEdit.name = Name;
-				parentToEdit.patronymic = Patronymic;
-				parentToEdit.gender = Gender;
-				parentToEdit.phonenumber = PhoneNumber.ToString();
-				parentToEdit.workplace = Workplace;
-				parentToEdit.profession = Profession;
+					.FirstAsync(parent => parent.Id == int.Parse(n));
+				parentToEdit.LastName = Surname;
+				parentToEdit.FirstName = Name;
+				parentToEdit.Patronymic = Patronymic;
+				parentToEdit.PhoneNumber= PhoneNumber.ToString();
+				parentToEdit.Workplace = Workplace;
+				parentToEdit.Profession = Profession;
 				db.Parents.Update(parentToEdit);
 				await db.SaveChangesAsync();
 			}

@@ -8,22 +8,38 @@
 
 <div class="container h-50 py-10">
 	<div>
-		<div class="d-inline-block">
-			<p>Название</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Name" class="rounded">
-		</div>
-	</div>
-	<div>
-		<div class="d-inline-block">
-			<p>Направление</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Specialization" class="rounded">
-		</div>
-	</div>
-	<div>
+		@if (!loading)
+		{
+			<label for="grade">Класс</label>
+			<select name="grade" @bind="ggrade">
+				@foreach (Data.Database.Model.Grade grade in grades)
+				{
+					<option value="@grade.Id">@grade.Name@grade.Subname</option>
+				}
+			</select>
+			<label for="subject">Предмет</label>
+			<select name="subject" @bind="ssubject">
+				@foreach (Data.Database.Model.Subject subject in subjects)
+				{
+					<option value="@subject.Id">@subject.Name</option>
+				}
+			</select>
+			<label for="teacher">Учитель</label>
+			<select name="teacher" @bind="tteacher">
+				@foreach (Data.Database.Model.Teacher teacher in teachers)
+				{
+					<option value="@teacher.id">@teacher.last_name @teacher.first_name.Substring(0, 1).@teacher.patronymic.Substring(0, 1).</option>
+				}
+			</select>
+			@if (n != "0")
+			{
+				<button type="button" class="btn btn-outline-info" @onclick="AddSpecialization">Изменить связь</button>
+			}
+			else
+			{
+				<button type="button" class="btn btn-outline-info" @onclick="AddSpecialization">Добавить связь</button>
+			}
+		}
 	</div>
 </div>
 
@@ -31,13 +47,36 @@
 	[Parameter]
 	public string n { get; set; }
 
-	private string Name { get; set; }
+	private bool loading = true;
 
-	private string Specialization { get; set; }
+	public int ggrade;
+
+	public int tteacher;
+
+	public int ssubject;
+
+	private List<Data.Database.Model.Teacher> teachers;
+
+	private List<Data.Database.Model.Subject> subjects;
+
+	private List<Data.Database.Model.Grade> grades;
+
+	private async Task LoadSpecs()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			grades = await db.Grades.ToListAsync();
+			subjects = await db.Subjects.ToListAsync();
+			teachers = await db.Teachers.ToListAsync();
+		}
+		loading = false;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
 		await OnLoad();
+		await LoadSpecs();
 	}
 	private async Task OnLoad()
 	{
@@ -45,10 +84,11 @@
 		{
 			using (var db = DbFactory.CreateDbContext())
 			{
-				var subjectToEdit = await db.Subjects
-					.FirstAsync(sub => sub.id_subject == int.Parse(n));
-				Name = subjectToEdit.name;
-				Specialization = subjectToEdit.specialization;
+				var tsgToEdit = await db.TeacherSubjectGrades
+					.FirstAsync(tsg => tsg.Id == int.Parse(n));
+				ggrade = tsgToEdit.GradeId;
+				ssubject = tsgToEdit.SubjectId;
+				tteacher = tsgToEdit.TeacherId;
 			}
 		}
 	}
@@ -58,10 +98,11 @@
 		{
 			using (var db = DbFactory.CreateDbContext())
 			{
-				Data.Database.Model.Subject s = new Data.Database.Model.Subject();
-				s.name = Name;
-				s.specialization = Specialization;
-				db.Subjects.Add(s);
+				Data.Database.Model.TeacherSubjectGrade tsg = new Data.Database.Model.TeacherSubjectGrade();
+				tsg.GradeId = ggrade;
+				tsg.SubjectId = ssubject;
+				tsg.TeacherId = tteacher;
+				db.TeacherSubjectGrades.Add(tsg);
 				await db.SaveChangesAsync();
 			}
 		}
@@ -69,14 +110,15 @@
 		{
 			using (var db = DbFactory.CreateDbContext())
 			{
-				var subjectToEdit = await db.Subjects
-					.FirstAsync(sub => sub.id_subject == int.Parse(n));
-				subjectToEdit.name = Name;
-				subjectToEdit.specialization = Specialization;
-				db.Subjects.Update(subjectToEdit);
+				var tsgToEdit = await db.TeacherSubjectGrades
+					.FirstAsync(sub => sub.Id == int.Parse(n));
+				tsgToEdit.GradeId = ggrade;
+				tsgToEdit.SubjectId = ssubject;
+				tsgToEdit.TeacherId = tteacher;
+				db.TeacherSubjectGrades.Update(tsgToEdit);
 				await db.SaveChangesAsync();
 			}
 		}
-		navigation.NavigateTo("/admin/subjects");
+		navigation.NavigateTo("/admin/specializations");
 	}
 }

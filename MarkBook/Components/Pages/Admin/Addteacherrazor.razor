@@ -65,9 +65,9 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var teacherToEdit = await db.Teachers
-					.FirstAsync(teacher => teacher.id_teacher == int.Parse(n));
-				Surname = teacherToEdit.surname;
-				Name = teacherToEdit.name;
+					.FirstAsync(teacher => teacher.id == int.Parse(n));
+				Surname = teacherToEdit.last_name;
+				Name = teacherToEdit.first_name;
 				Patronymic = teacherToEdit.patronymic;
 			}
 		}
@@ -79,8 +79,8 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				Data.Database.Model.Teacher t = new Data.Database.Model.Teacher();
-				t.surname = Surname;
-				t.name = Name;
+				t.last_name = Surname;
+				t.first_name = Name;
 				t.patronymic = Patronymic;
 				db.Teachers.Add(t);
 				await db.SaveChangesAsync();
@@ -92,9 +92,9 @@
 			using (var db = DbFactory.CreateDbContext())
 			{
 				var teacherToEdit = await db.Teachers
-					.FirstAsync(teacher => teacher.id_teacher == int.Parse(n));
-				teacherToEdit.surname = Surname;
-				teacherToEdit.name = Name;
+					.FirstAsync(teacher => teacher.id == int.Parse(n));
+				teacherToEdit.last_name = Surname;
+				teacherToEdit.first_name = Name;
 				teacherToEdit.patronymic = Patronymic;
 				db.Teachers.Update(teacherToEdit);
 				await db.SaveChangesAsync();

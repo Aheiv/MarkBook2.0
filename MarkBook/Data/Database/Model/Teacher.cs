@@ -4,34 +4,31 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MarkBook.Data.Database.Model
 {
 
-    [Table("Teacher")]
-    public partial class Teacher
-    {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Teacher()
-        {
-            Schedules = new HashSet<Schedule>();
-            Specializations = new HashSet<Specialization>();
-        }
+	[Table("teacher")]
+	public partial class Teacher
+	{
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+		public Teacher()
+		{
+			TeacherSubjectGrades = new HashSet<TeacherSubjectGrade>();
+		}
 
-        [Key]
-        public int id_teacher { get; set; }
+		[Key]
+		public int id { get; set; }
 
-        [Required]
-        [StringLength(30)]
-        public string surname { get; set; }
+		[Required]
+		[StringLength(255)]
+		public string last_name { get; set; }
 
-        [Required]
-        [StringLength(30)]
-        public string name { get; set; }
+		[Required]
+		[StringLength(255)]
+		public string first_name { get; set; }
 
-        [StringLength(30)]
-        public string? patronymic { get; set; }
+		[StringLength(255)]
+		public string patronymic { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Schedule> Schedules { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Specialization> Specializations { get; set; }
-    }
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+		public virtual ICollection<TeacherSubjectGrade> TeacherSubjectGrades { get; set; }
+	}
 }
