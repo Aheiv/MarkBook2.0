@@ -1,4 +1,4 @@
-﻿@page "/student{n}/schedule"
+﻿@page "/parent{n}/schedule"
 @using Microsoft.EntityFrameworkCore
 @using MarkBook.Data.Database.Model
 
@@ -11,6 +11,17 @@
 	@if (!loading)
 	{
 		<div class="container h-50 py-10">
+			<div>
+				<select name="student" @bind="sstudent">
+				@foreach (Data.Database.Model.ParentStudent pa in parentStudents.Where(x => x.Parent.Id == int.Parse(n)))
+				{
+					@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == pa.Student.Id))
+					{
+						<option value="@student.Grade.Id">@student.LastName @student.FirstName.Substring(0, 1).@student.Patronymic.Substring(0, 1).</option>
+					}
+				}
+				</select>
+			</div>
 			<div style="height:500px; overflow-y: scroll;">
 				<table class="table table-striped">
 					<thead>
@@ -23,13 +34,10 @@
 					<tbody>
 						@foreach (string a in weekdays)
 						{
-							@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == int.Parse(n)))
-							{
-								@foreach (Data.Database.Model.Schedule schedule in schedules.Where(x => x.Weekday == a && x.TeacherSubjectGrade.Grade.Id == student.Grade.Id))
+								@foreach (Data.Database.Model.Schedule schedule in schedules.Where(x => x.Weekday == a && x.TeacherSubjectGrade.Grade.Id == sstudent))
 								{
 									count++;
 								}
-							}
 							@if (count > 1)
 							{
 								count++;
@@ -37,10 +45,8 @@
 									<th rowspan="@count" align="center">@a</th>
 								</tr>
 								count = 0;
-								@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == int.Parse(n)))
-								{
 									@foreach (Data.Database.Model.Schedule schedule in schedules.Where(x => x.Weekday == a &&
-														x.TeacherSubjectGrade.Grade.Id == student.Grade.Id).OrderBy(x => x.Number))
+														x.TeacherSubjectGrade.Grade.Id == sstudent).OrderBy(x => x.Number))
 									{
 										var sID = schedule.Id;
 										<tr>
@@ -52,26 +58,21 @@
 										</tr>
 									}
 
-								}
-
 							}
 							else
 							{
 								<tr>
 									<th align="center">@a</th>
-									@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == int.Parse(n)))
-									{
-									@foreach (Data.Database.Model.Schedule schedule in schedules.Where(x => x.Weekday == a &&
-															x.TeacherSubjectGrade.Grade.Id == student.Grade.Id).OrderBy(x => x.Number))
-									{
-										var sID = schedule.Id;
-										<td>@schedule.Number</td>
-										<td>
-											@schedule.TeacherSubjectGrade.Subject.Name (Учитель: @schedule.TeacherSubjectGrade.Teacher.last_name
-											@schedule.TeacherSubjectGrade.Teacher.first_name.Substring(0, 1).@schedule.TeacherSubjectGrade.Teacher.patronymic.Substring(0, 1).)
-										</td>
-									}
-									}
+										@foreach (Data.Database.Model.Schedule schedule in schedules.Where(x => x.Weekday == a &&
+															x.TeacherSubjectGrade.Grade.Id == sstudent).OrderBy(x => x.Number))
+										{
+											var sID = schedule.Id;
+											<td>@schedule.Number</td>
+											<td>
+												@schedule.TeacherSubjectGrade.Subject.Name (Учитель: @schedule.TeacherSubjectGrade.Teacher.last_name
+												@schedule.TeacherSubjectGrade.Teacher.first_name.Substring(0, 1).@schedule.TeacherSubjectGrade.Teacher.patronymic.Substring(0, 1).)
+											</td>
+										}
 								</tr>
 								count = 0;
 							}
@@ -92,11 +93,15 @@
 
 	public int count = 0;
 
+	public int sstudent;
+
 	private List<Data.Database.Model.TeacherSubjectGrade> teacherSubjectGrades;
 
 	private List<Data.Database.Model.Schedule> schedules;
 
 	private List<Data.Database.Model.Student> students;
+
+	private List<Data.Database.Model.ParentStudent> parentStudents;
 
 	public string weekday = "Понедельник";
 
@@ -110,6 +115,7 @@
 			teacherSubjectGrades = await db.TeacherSubjectGrades.Include(x => x.Teacher).Include(x => x.Subject).Include(x => x.Grade).ToListAsync();
 			schedules = await db.Schedules.Include(x => x.TeacherSubjectGrade).ToListAsync();
 			students = await db.Students.Include(x => x.Grade).ToListAsync();
+			parentStudents = await db.ParentStudents.Include(x => x.Student).Include(x => x.Parent).ToListAsync();
 		}
 		loading = false;
 	}
@@ -119,3 +125,4 @@
 		await LoadSpecs();
 	}
 }
+

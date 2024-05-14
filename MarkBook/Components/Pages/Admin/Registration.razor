@@ -8,64 +8,21 @@
 
 <div>
 	<div class="container h-50 py-10">
-		<div>
-		<div class="d-inline-block">
-			<p>Логин</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Login" class="rounded">
-		</div>
+		fidada52
 	</div>
-	<div>
-		<div class="d-inline-block">
-			<p>Пароль</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Password" class="rounded">
-		</div>
-	</div>
-	<div>
-		<div class="d-inline-block">
-			<p>Повторите пароль</p>
-		</div>
-		<div class="d-inline-block">
-			<input @bind-value="Password2" class="rounded">
-		</div>
-	</div>
-	<div>
-		<div class="d-inline-block">
-			<input type="radio" name="role" @bind-value="Admin">Администратор
-				<input type="radio" name="role" @bind-value="Teacher">Учитель
-				<input type="radio" name="role" @bind-value="Student">Ученик
-				<input type="radio" name="role" @bind-value="Parent">Родитель
-		</div>
-	</div>
-		<div>
-		<button type="button" @onclick="AddUser">Зарегистрировать пользователя</button>
-	</div>
-</div>
 </div>
 
 @code {
-	private string Login { get; set; }
+	public string username;
 
-	private string Password { get; set; }
-
-	private string Password2 { get; set; }
-
-	private bool Admin { get; set; }
-
-	private bool Teacher { get; set; }
-
-	private bool Student { get; set; }
-
-	private bool Parent { get; set; }
+	public string password;
 
 	private async Task AddUser()
 	{
 		using (var db = DbFactory.CreateDbContext())
 		{
-			
+			Data.Database.Model.TeacherUser tu = new Data.Database.Model.TeacherUser();
+
 		}
 	}
 }

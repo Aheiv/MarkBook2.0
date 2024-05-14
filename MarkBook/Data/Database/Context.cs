@@ -15,7 +15,8 @@ namespace MarkBook.Data.Database
         public virtual DbSet<Schedule> Schedules { get; set; }
         public virtual DbSet<TeacherSubjectGrade> TeacherSubjectGrades { get; set; }
         public virtual DbSet<Student> Students { get; set; }
-        public virtual DbSet<Subject> Subjects { get; set; }
+		public virtual DbSet<ParentStudent> ParentStudents { get; set; }
+		public virtual DbSet<Subject> Subjects { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
 		public virtual DbSet<TeacherUser> TeacherUsers { get; set; }
 		public virtual DbSet<StudentUser> StudentUsers { get; set; }

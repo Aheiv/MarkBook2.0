@@ -7,17 +7,19 @@ namespace MarkBook.Data.Database.Model
 	public partial class TeacherUser
 	{
 		[Key]
-		public int id { get; set; }
+		[Column("id")]
+		public int Id { get; set; }
 
 		[Required]
 		[StringLength(255)]
-		public string username {  get; set; }
+		[Column("username")]
+		public string Username {  get; set; }
 		[Required]
-		public string password { get; set; }
+		[Column("password")]
+		public string Password { get; set; }
 
 		[Column("teacher_id")]
-		public int TeacherId;
-		[Required]
-		public virtual Teacher Teacher { get; set; }
+		public int TeacherId { get; set; }
+		public virtual Teacher? Teacher { get; set; }
 	}
 }

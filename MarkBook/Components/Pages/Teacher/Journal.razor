@@ -1,6 +1,8 @@
-﻿@page "/teacher/marks"
+﻿@page "/teacher{n}/marks"
 @using Microsoft.EntityFrameworkCore
 @using MarkBook.Data.Database.Model
+@using System.IO;
+@using ClosedXML.Excel;
 
 @inject NavigationManager navigation
 @inject IDbContextFactory<Data.Database.Context> DbFactory
@@ -14,13 +16,18 @@
 		white-space: nowrap;
 	}
 </style>
-
+@if (dialog == true)
+{
+	<dialog open>
+		<p>Неверный формат даты!</p>
+		<button class="btn btn-secondary" @onclick="Close">ОК</button>
+	</dialog>
+}
 <div>
 	<div class="container h-50 py-10 d-flex justify-content-end">
-		<select @bind="n">
+		<select @bind="o">
 			<option value="marks">Выставление оценок</option>
 			<option value="avg">Оценки за четверть</option>
-			<option value="apps">Сводная ведомость учёта посещаемости</option>
 			<option value="miss">Сведения о количестве уроков, пропущенных обучающимися</option>
 			<option value="info">Общие сведения об обучающихся</option>
 		</select>
@@ -29,19 +36,19 @@
 	<div class="container h-50 py-10">
 		@if (!loading)
 		{
-			@if (n == "marks")
+			@if (o == "marks")
 			{
 				<div>
 					<label for="grade">Класс</label>
 					<select name="grade" @bind="ggrade">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Grade.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Grade.Name))
 						{
 							<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
 						}
 					</select>
 					<label for="subject">Предмет</label>
 					<select name="subject" @bind="ssubject">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Subject.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Subject.Name))
 						{
 							<option value="@teacherSubjectGrade.Subject.Id">@teacherSubjectGrade.Subject.Name</option>
 						}
@@ -53,7 +60,7 @@
 							<option value="@quarterDate.Number">@quarterDate.Number</option>
 						}
 					</select>
-					@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == 1 &&
+					@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == int.Parse(n) &&
 																																						tsg.Grade.Id == ggrade &&
 																																						tsg.Subject.Id == ssubject))
 					{
@@ -157,6 +164,7 @@
 						<input name="date" type="date" @bind="date" />
 						<label for="mark">Оценка/посещение</label>
 						<select name="mark" @bind="newmark">
+							<option value="Выберите оценку"></option>
 							<option value="2">2</option>
 							<option value="3">3</option>
 							<option value="4">4</option>
@@ -173,28 +181,31 @@
 								<option value="@student.Id">@student.LastName @student.FirstName.Substring(0, 1).@student.Patronymic.Substring(0, 1).</option>
 							}
 						</select>
-						<button type="button" class="btn btn-primary" @onclick="AddMark">Добавить оценку</button>
+						<button type="button" class="btn btn-primary" @onclick="CheckDate">Добавить оценку</button>
 					}
 				</div>
+				<div>
+					<p>Вывод таблицы в эксель <button class="btn btn-primary" @onclick="SaveTable">Вывод</button></p>
+				</div>
 			}
-			else if (n == "avg")
+			else if (o == "avg")
 			{
 				<div>
 					<label for="grade">Класс</label>
 					<select name="grade" @bind="ggrade">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Grade.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Grade.Name))
 						{
 							<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
 						}
 					</select>
 					<label for="subject">Предмет</label>
 					<select name="subject" @bind="ssubject">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Subject.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Subject.Name))
 						{
 							<option value="@teacherSubjectGrade.Subject.Id">@teacherSubjectGrade.Subject.Name</option>
 						}
 					</select>
-					@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == 1 &&
+					@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == int.Parse(n) &&
 							tsg.Grade.Id == ggrade &&
 							tsg.Subject.Id == ssubject))
 					{
@@ -270,38 +281,21 @@
 					</table>
 				</div>
 			}
-			else if (n == "apps")
+			else if (o == "miss")
 			{
 				<div>
 					<label for="grade">Класс</label>
 					<select name="grade" @bind="ggrade">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Grade.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Grade.Name))
 						{
 							<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
 						}
 					</select>
-				</div>
-				<div>
-					<table class="table table-striped">
-						<thead>
-							<tr>
-
-							</tr>
-						</thead>
-						<tbody>
-
-						</tbody>
-					</table>
-				</div>
-			}
-			else if (n == "miss")
-			{
-				<div>
-					<label for="grade">Класс</label>
-					<select name="grade" @bind="ggrade">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Grade.Name))
+					<label for="subject">Предмет</label>
+					<select name="subject" @bind="ssubject">
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Subject.Name))
 						{
-							<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
+							<option value="@teacherSubjectGrade.Subject.Id">@teacherSubjectGrade.Subject.Name</option>
 						}
 					</select>
 				</div>
@@ -310,11 +304,11 @@
 						<thead>
 							<tr>
 								<th scope="col" rowspan="2">ФИО</th>
-								<th scope="col" colspan="3">1-ая четверть</th>
-								<th scope="col" colspan="3">2-ая четверть</th>
-								<th scope="col" colspan="3">3-ая четверть</th>
-								<th scope="col" colspan="3">4-ая четверть</th>
-								<th scope="col" colspan="3">Весь год</th>
+								<th scope="col" colspan="3" align="center">1-ая четверть</th>
+								<th scope="col" colspan="3" align="center">2-ая четверть</th>
+								<th scope="col" colspan="3" align="center">3-ая четверть</th>
+								<th scope="col" colspan="3" align="center">4-ая четверть</th>
+								<th scope="col" colspan="3" align="center">Весь год</th>
 							</tr>
 							<tr>
 								<th scope="col">всего</th>
@@ -335,17 +329,80 @@
 							</tr>
 						</thead>
 						<tbody>
-
-						</tbody>
+							@foreach (Data.Database.Model.Student student in students.Where(s => s.Grade.Id == ggrade))
+							{
+								int all = 0;
+								int alll= 0;
+								int allll = 0;
+								<tr>							
+									<th scope="row">@student.LastName @student.FirstName.Substring(0, 1).@student.Patronymic.Substring(0, 1).</th>
+									@foreach (Data.Database.Model.QuarterDate quarterDate in quarterDates.Where(q => q.StudyYear.Years == "2023-2024"))
+									{
+										int c = 0;
+										int cfull = 0;
+										int op = 0;
+										@foreach (Data.Database.Model.StudentLesson studentLesson in studentLessons.Where(s => s.TeacherSubjectGrade.Grade.Id == ggrade &&
+																													s.TeacherSubjectGrade.Subject.Id == ssubject && s.Student.Id == student.Id &&
+																													s.Date_Of_Lesson.Month == quarterDate.DateOfStart.Month ||
+																													s.Date_Of_Lesson.Month == quarterDate.DateOfEnd.Month).OrderBy(s => s.Date_Of_Lesson))
+										{
+											if (studentLesson.Appointment == "Н/Б" || studentLesson.Appointment == "Н/У")
+											{
+												cfull++;
+											}
+											else if (studentLesson.Appointment == "Н")
+											{
+												c++;
+												cfull++;
+											}
+											else if (studentLesson.Appointment == "О")
+											{
+												op++;
+											}
+										}
+										if (c == 0)
+										{
+											<td>-</td>
+										}
+										else
+										{
+											<td>@c</td>
+										}
+										all += c;
+										if (cfull == 0)
+										{
+											<td>-</td>
+										}
+										else
+										{
+											<td>@cfull</td>
+										}
+										alll += cfull;
+										if (op == 0)
+										{
+											<td>-</td>
+										}
+										else
+										{
+											<td>@op</td>
+										}
+										allll += op;
+									}
+									<td>@all</td>
+									<td>@alll</td>
+									<td>@allll</td>
+								</tr>
+							}
+							</tbody>
 					</table>
 				</div>
 			}
-			else if (n == "info")
+			else if (o == "info")
 			{
 				<div>
 					<label for="grade">Класс</label>
 					<select name="grade" @bind="ggrade">
-						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == 1).DistinctBy(x => x.Grade.Name))
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Grade.Name))
 						{
 							<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
 						}
@@ -387,8 +444,7 @@
 										<td>@student.House</td>
 										<td>@student.Apartment</td>
 										<td>@student.PhoneNumber</td>
-									</tr>
-								
+									</tr>							
 							}
 						</tbody>
 					</table>
@@ -400,7 +456,12 @@
 
 
 @code {
-	public string n = "marks";
+	[Parameter]
+	public string n { get; set; }
+
+	public bool dialog = false;
+
+	public string o = "marks";
 
 	private bool loading = true;
 
@@ -414,9 +475,13 @@
 
 	public int tsg;
 
+	public string ch;
+
 	public int sstudent;
 
-	public DateOnly date = new DateOnly (2023, 9, 1);
+	public static string today = DateTime.Today.ToShortDateString();
+
+	public DateOnly date = DateOnly.Parse(today);
 
 	public string newmark;
 
@@ -450,6 +515,22 @@
 		loading = false;
 	}
 
+	private async void CheckDate()
+	{
+		DateOnly ddate = new DateOnly(2024, 5, 25);
+		DateOnly tdate = new DateOnly(2023, 8, 31);
+		if (date < ddate && date > tdate)
+		{ 
+			ch = "да";
+			await AddMark();
+		}
+		else
+		{
+			ch = "нет";
+			dialog = true;
+		}
+	}
+
 	private async Task AddMark()
 	{
 		using (var db = DbFactory.CreateDbContext())
@@ -470,7 +551,7 @@
 			await db.SaveChangesAsync();
 		}
 		StateHasChanged();
-		navigation.NavigateTo("/teacher/marks", forceLoad: true);
+		navigation.NavigateTo($"/teacher{n}/marks", forceLoad: true);
 	}
 
 	private bool Check()
@@ -481,6 +562,62 @@
 				return false;
 		}
 		return true;
+	}
+	private async Task SaveTable()
+	{
+		int q = 1;
+		var wb = new XLWorkbook();
+		wb.Properties.Author = "the Author";
+		wb.Properties.Title = "the Title";
+		wb.Properties.Subject = "the Subject";
+		var ws = wb.Worksheets.Add("Grades");
+		ws.Cell(1, 1).Value = "Фио/Дата";
+		@foreach (Data.Database.Model.QuarterDate quarterDate in quarterDates.Where(q => q.StudyYear.Years == "2023-2024"
+																								&& q.Number == qquarter))
+		{
+			for (int i = 0; i < quarterDate.DateOfEnd.DayOfYear - quarterDate.DateOfStart.DayOfYear; i++)
+			{
+				ws.Cell(1, i + 2).Value = quarterDate.DateOfStart.AddDays(i).ToString();
+			}
+			q = quarterDate.Number;
+		}
+		int r = 2;
+		@foreach (Data.Database.Model.Student student in students.Where(s => s.Grade.Id == ggrade))
+		{
+			ws.Cell(r, 1).Value = $"{student.LastName} {student.FirstName.Substring(0, 1)}.{student.Patronymic.Substring(0, 1)}.";
+			@foreach (Data.Database.Model.QuarterDate quarterDate in quarterDates.Where(q => q.StudyYear.Years == "2023-2024"
+					&& q.Number == qquarter))
+				{
+					@foreach (Data.Database.Model.StudentLesson studentLesson in studentLessons.Where(s => s.TeacherSubjectGrade.Grade.Id == ggrade &&
+						s.TeacherSubjectGrade.Subject.Id == ssubject && s.Student.Id == student.Id &&
+						s.Date_Of_Lesson.Month == quarterDate.DateOfStart.Month ||
+						s.Date_Of_Lesson.Month == quarterDate.DateOfEnd.Month).OrderBy(s => s.Date_Of_Lesson))
+					{
+						for (int i = 0; i < quarterDate.DateOfEnd.DayOfYear - quarterDate.DateOfStart.DayOfYear; i++)
+						{
+							string mark = " ";
+							if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Mark != null)
+							{
+								mark = studentLesson.Mark.ToString();
+									ws.Cell(r, i+2).Value = mark;
+							}
+							else if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Appointment != null)
+							{
+								mark = studentLesson.Appointment;
+							ws.Cell(r, i+2).Value = mark;
+							}
+						}
+
+					}
+				}
+			r++;
+		}
+
+		wb.SaveAs($"Оценки{q}четверть.xlsx");
+	}
+	private async Task Close()
+	{
+		dialog = false;
 	}
 
 	protected override async Task OnInitializedAsync()

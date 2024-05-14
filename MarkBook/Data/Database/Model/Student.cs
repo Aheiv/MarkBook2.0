@@ -11,7 +11,7 @@ namespace MarkBook.Data.Database.Model
 		public Student()
 		{
 			StudentLessons = new HashSet<StudentLesson>();
-			Parents = new HashSet<Parent>();
+			ParentStudents = new HashSet<ParentStudent>();
 		}
 
 		[Key]
@@ -81,6 +81,6 @@ namespace MarkBook.Data.Database.Model
 		public virtual ICollection<StudentLesson> StudentLessons { get; set; }
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-		public virtual ICollection<Parent> Parents { get; set; }
+		public virtual ICollection<ParentStudent> ParentStudents { get; set; }
 	}
 }

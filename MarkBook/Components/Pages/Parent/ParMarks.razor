@@ -1,4 +1,4 @@
-﻿@page "/student{n}/marks"
+﻿@page "/parent{n}/marks"
 @using Microsoft.EntityFrameworkCore
 @using MarkBook.Data.Database.Model
 
@@ -18,6 +18,13 @@
 		@if (!loading)
 		{
 			<div>
+				<label for="student">Ученик</label>
+				<select name="student" @bind="sstudent">
+					@foreach (Data.Database.Model.ParentStudent pa in parentStudents.Where(x => x.Parent.Id == int.Parse(n)).DistinctBy(x => x.Student.PhoneNumber))
+					{
+						<option value="@pa.Student.Id">@pa.Student.LastName @pa.Student.FirstName.Substring(0, 1).@pa.Student.Patronymic.Substring(0,1)</option>
+					}
+				</select>
 				<label for="quarter">Четверть</label>
 				<select name="quarter" @bind="qquarter">
 					@foreach (Data.Database.Model.QuarterDate quarterDate in quarterDates.Where(q => q.StudyYear.Years == "2023-2024"))
@@ -64,55 +71,55 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (Data.Database.Model.Student student in students.Where(s => s.Id == int.Parse(n)))
+						@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == sstudent))
 						{
-							@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Grade.Id == student.Grade.Id))
-							{
+						@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Grade.Id == student.Grade.Id))
+						{
 
-								int t = 0;
+							int t = 0;
 
-								<tr>
+							<tr>
 									<th scope="row">@teacherSubjectGrade.Subject.Name</th>
 								@foreach (Data.Database.Model.QuarterDate quarterDate in quarterDates.Where(q => q.StudyYear.Years == "2023-2024"
 													&& q.Number == qquarter))
 								{
-									@foreach (Data.Database.Model.StudentLesson studentLesson in studentLessons.Where(s => s.TeacherSubjectGrade.Subject.Id == 
-														teacherSubjectGrade.Subject.Id && s.Student.Id == student.Id &&
-														s.Date_Of_Lesson.Month == quarterDate.DateOfStart.Month ||
-														s.Date_Of_Lesson.Month == quarterDate.DateOfEnd.Month).OrderBy(s => s.Date_Of_Lesson))
-									{
-										int c = t;
-										for (int i = c; i < quarterDate.DateOfEnd.DayOfYear - quarterDate.DateOfStart.DayOfYear; i++)
+										@foreach (Data.Database.Model.StudentLesson studentLesson in studentLessons.Where(s => s.TeacherSubjectGrade.Subject.Id == teacherSubjectGrade.Id 
+																													&& s.Student.Id == student.Id &&
+																													s.Date_Of_Lesson.Month == quarterDate.DateOfStart.Month ||
+																													s.Date_Of_Lesson.Month == quarterDate.DateOfEnd.Month).OrderBy(s => s.Date_Of_Lesson))
 										{
-											string mark = " ";
-											if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Mark != null)
+											int c = t;
+											for (int i = c; i < quarterDate.DateOfEnd.DayOfYear - quarterDate.DateOfStart.DayOfYear; i++)
 											{
-												mark = studentLesson.Mark.ToString();
-												<td>
-													@mark
-												</td>
-												t = i + 1;
-												break;
+												string mark = " ";
+												if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Mark != null)
+												{
+													mark = studentLesson.Mark.ToString();
+													<td>
+														@mark
+													</td>
+													t = i + 1;
+													break;
+												}
+												else if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Appointment != null)
+												{
+													mark = studentLesson.Appointment;
+													<td>
+														@mark
+													</td>
+													t = i + 1;
+													break;
+												}
+												else
+												{
+													<td></td>
+												}
 											}
-											else if (studentLesson.Date_Of_Lesson == quarterDate.DateOfStart.AddDays(i) && studentLesson.Appointment != null)
-											{
-												mark = studentLesson.Appointment;
-												<td>
-													@mark
-												</td>
-												t = i + 1;
-												break;
-											}
-											else
-											{
-												<td></td>
-											}
-										}
-
+										
 									}
 								}
 							</tr>
-							}
+						}
 						}
 					</tbody>
 				</table>
@@ -126,7 +133,7 @@
 
 	private bool loading = true;
 
-	public int ggrade = 1;
+	public int sstudent = 1;
 
 	public int ssubject = 1;
 
@@ -135,8 +142,9 @@
 	private List<Data.Database.Model.TeacherSubjectGrade> teacherSubjectGrades;
 
 	private List<Data.Database.Model.QuarterDate> quarterDates;
-	private List<Data.Database.Model.Student> students;
+	private List<Data.Database.Model.ParentStudent> parentStudents;
 	private List<Data.Database.Model.StudentLesson> studentLessons;
+	private List<Data.Database.Model.Student> students;
 
 	private async Task LoadSpecs()
 	{
@@ -145,6 +153,7 @@
 			loading = true;
 			teacherSubjectGrades = await db.TeacherSubjectGrades.Include(x => x.Teacher).Include(x => x.Subject).Include(x => x.Grade).ToListAsync();
 			studentLessons = await db.StudentLessons.Include(x => x.Student).ToListAsync();
+			parentStudents = await db.ParentStudents.Include(x => x.Parent).Include(x => x.Student).ToListAsync();
 			students = await db.Students.Include(x => x.Grade).ToListAsync();
 		}
 		loading = false;

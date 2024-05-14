@@ -1,4 +1,4 @@
-﻿@page "/teacher/calendar"
+﻿@page "/teacher{n}/calendar"
 @using Microsoft.EntityFrameworkCore
 
 @inject NavigationManager navigation
@@ -11,19 +11,19 @@
 		{
 		<label for="grade">Класс</label>
 		<select name="grade" @bind="ggrade">
-			@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.DistinctBy(x => x.Grade.Name))
+			@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Grade.Name))
 			{
 				<option value="@teacherSubjectGrade.Grade.Id">@teacherSubjectGrade.Grade.Name@teacherSubjectGrade.Grade.Subname</option>
 			}
 		</select>
 		<label for="subject">Предмет</label>
 		<select name="subject" @bind="ssubject">
-			@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.DistinctBy(x => x.Subject.Name))
+			@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(x => x.Teacher.id == int.Parse(n)).DistinctBy(x => x.Subject.Name))
 			{
 				<option value="@teacherSubjectGrade.Subject.Id">@teacherSubjectGrade.Subject.Name</option>
 			}
 		</select>
-		@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == 1 &&
+		@foreach (Data.Database.Model.TeacherSubjectGrade teacherSubjectGrade in teacherSubjectGrades.Where(tsg => tsg.Teacher.id == int.Parse(n) &&
 																												tsg.Grade.Id == ggrade &&
 																												tsg.Subject.Id == ssubject))
 		{
@@ -70,11 +70,13 @@
 			</tbody>
 		</table>
 	</div>
-	@tsg
 	}
 </div>
 
 @code {
+	[Parameter]
+	public string n { get; set; }
+
 	public int num = 1;
 
 	public int ggrade = 1;

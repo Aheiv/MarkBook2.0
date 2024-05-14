@@ -10,7 +10,7 @@ namespace MarkBook.Data.Database.Model
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
 		public Parent()
 		{
-			Students = new HashSet<Student>();
+			ParentStudents = new HashSet<ParentStudent>();
 		}
 
 		[Key]
@@ -44,7 +44,7 @@ namespace MarkBook.Data.Database.Model
 		public string? PhoneNumber { get; set; }
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-		public virtual ICollection<Student> Students { get; set; }
+		public virtual ICollection<ParentStudent> ParentStudents { get; set; }
 
 	}
 }

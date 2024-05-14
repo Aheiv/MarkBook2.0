@@ -6,6 +6,14 @@
 @layout Components.Layout.MainLayout
 @rendermode InteractiveServer
 
+@if (dialog == true)
+{
+	<dialog open>
+		<p>Сохранить изменения?</p>
+		<button class="btn btn-secondary" @onclick="Cancel">Отмена</button>
+		<button class="btn btn-success" @onclick="AddGrade">Сохранить</button>
+	</dialog>
+}
 <div class="container h-50 py-10">
 	<div>
 		<div class="d-inline-block">
@@ -26,7 +34,7 @@
 	<div>
 		@if (n != "0")
 		{
-			<button type="button" class="btn btn-outline-info" @onclick="AddGrade">Изменить класс</button>
+			<button type="button" class="btn btn-outline-info" @onclick="OpenDialog">Изменить класс</button>
 		}
 		else
 		{
@@ -37,6 +45,8 @@
 @code {
 	[Parameter]
 	public string n { get; set; }
+
+	public bool dialog = false;
 
 	private int Name { get; set; }
 
@@ -58,6 +68,14 @@
 				Letter = gradeToEdit.Subname;
 			}
 		}
+	}
+	private async Task OpenDialog()
+	{
+		dialog = true;
+	}
+	private async Task Cancel()
+	{
+		dialog = false;
 	}
 	private async Task AddGrade()
 	{

@@ -7,14 +7,19 @@ namespace MarkBook.Data.Database.Model
 	public partial class ParentUser
 	{
 		[Key]
-		public int id { get; set; }
+		[Column("id")]
+		public int Id { get; set; }
 
 		[Required]
 		[StringLength(255)]
-		public string username { get; set; }
+		[Column("username")]
+		public string Username { get; set; }
 		[Required]
-		public string password { get; set; }
+		[Column("password")]
+		public string Password { get; set; }
 		[Required]
-		public virtual Parent Parent { get; set; }
+		[Column("parent_id")]
+		public int ParentId { get; set; }
+		public virtual Parent? Parent { get; set; }
 	}
 }
