@@ -4,35 +4,27 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace MarkBook.Data.Database.Model
 {
 
-    [Table("Subject")]
+    [Table("subject")]
     public partial class Subject
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Subject()
         {
-            Specializations = new HashSet<Specialization>();
-            Schedules = new HashSet<Schedule>();
-            Subject_Student_Mark = new HashSet<Subject_Student_Mark>();
-        }
+			TeacherSubjectGrades = new HashSet<TeacherSubjectGrade>();
+
+		}
 
         [Key]
-        public int id_subject { get; set; }
+        [Column("id")]
+        public int Id { get; set; }
 
         [Required]
         [StringLength(20)]
-        public string name { get; set; }
-
-        [Required]
-        [StringLength(30)]
-        public string specialization { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Schedule> Schedules { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Subject_Student_Mark> Subject_Student_Mark { get; set; }
+        [Column("name")]
+        public string Name { get; set; }
 
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-		public virtual ICollection<Specialization> Specializations { get; set; }
+		public virtual ICollection<TeacherSubjectGrade> TeacherSubjectGrades { get; set; }
+
 	}
 }

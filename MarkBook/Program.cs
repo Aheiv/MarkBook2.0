@@ -1,13 +1,11 @@
 using MarkBook.Components;
 using MarkBook.Data.Database;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor.Services;
+
+
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddMudServices();
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

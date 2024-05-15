@@ -15,27 +15,25 @@
 					<tr>
 						<th scope="col">#</th>
 						<th scope="col">Название предмета</th>
-						<th scope="col">Направление</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (Data.Database.Model.Subject subject in subjects)
 					{
-						var sID = subject.id_subject;
+						var sID = subject.Id;
 						<tr>
-							<th scope="row">@subject.id_subject</th>
-							<td>@subject.name</td>
-							<td>@subject.specialization</td>
+							<th scope="row">@subject.Id</th>
+							<td>@subject.Name</td>
 							<td>
 								<button class="btn btn-danger" @onclick="@(() => {DeleteSubject(sID);})">Удалить</button>
-								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAS(sID);})">Изменить</button>
+								<button type="button" class="btn btn-success" @onclick="@(() => {RedirectToAS(sID);})">Изменить</button>
 							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		}
-		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAS(0);})">Добавить предмет</button>
+		<button type="button" class="btn btn-primary" @onclick="@(() => {RedirectToAS(0);})">Добавить предмет</button>
 	</div>
 </div>
 
@@ -70,7 +68,7 @@
 			try
 			{
 				var subjectToRemove = await db.Subjects
-					.FirstAsync(subject => subject.id_subject == id);
+					.FirstAsync(subject => subject.Id == id);
 
 				db.Subjects.Remove(subjectToRemove);
 				db.SaveChanges();

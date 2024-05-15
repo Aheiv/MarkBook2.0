@@ -1,7 +1,10 @@
-﻿@page "/teacher"
+﻿@page "/teacher{n}"
+@using Microsoft.EntityFrameworkCore
+@using MarkBook.Data.Database.Model
+
 @inject NavigationManager navigation
 @layout Components.Layout.LeaveLayout
-
+@inject IDbContextFactory<Data.Database.Context> DbFactory
 @rendermode InteractiveServer
 
 <PageTitle>Меню учителя</PageTitle>
@@ -9,27 +12,61 @@
 
 </div>
 <div>
-	<div class="container h-100 py-5">
-		<div class="row h-100 justify-content-center align-items-center">
-			<div class="col-6 w-50 h-50">
-				<div class="position-relative">
-					<div class="position-absolute top-50 start-50 translate-middle my-4">
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToGrades">Проставление оценок</button>
-						<button type="button" class="btn btn-outline-info" @onclick="RedirectToCalendar">Календарно-тематический план</button>
+	@if (!loading)
+	{
+		<div class="container h-100 py-5">
+			<div>
+				@foreach (Data.Database.Model.Teacher teacher in teachers.Where(x => x.id == int.Parse(n)))
+				{
+					<h3>Добро пожаловать, @teacher.last_name @teacher.first_name @teacher.patronymic</h3>
+				}
+			</div>
+			<div class="container h-100 py-5">
+				<h1>        </h1>
+				<h1>        </h1>
+				</div>
+			<div class="row h-100 justify-content-center align-items-center">
+				<div class="col-6 w-50 h-50">
+					<div class="position-relative">
+						<div class="position-absolute top-50 start-50 translate-middle my-4">
+							<button type="button" class="btn btn-primary" @onclick="RedirectToGrades">Журнал</button>
+							<button type="button" class="btn btn-primary" @onclick="RedirectToCalendar">Календарно-тематический план</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	}
 </div>
 
 @code {
+	[Parameter]
+	public string n { get; set; }
+
+	private bool loading = true;
+
+	private List<Data.Database.Model.Teacher> teachers;
+
+	private async Task LoadTeachers()
+	{
+		using (var db = DbFactory.CreateDbContext())
+		{
+			loading = true;
+			teachers = await db.Teachers.ToListAsync();
+		}
+		loading = false;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadTeachers();
+	}
 	private void RedirectToGrades()
 	{
-		navigation.NavigateTo("/teacher/grades");
+		navigation.NavigateTo($"/teacher{n}/marks");
 	}
 	private void RedirectToCalendar()
 	{
-		navigation.NavigateTo("/teacher/calendar");
+		navigation.NavigateTo($"/teacher{n}/calendar");
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.Design;
 
 namespace MarkBook.Data.Database.Model
 {
@@ -8,18 +9,20 @@ namespace MarkBook.Data.Database.Model
     public partial class Schedule
     {
         [Key]
-        public int id_schedule { get; set; }
+        [Column("id")]
+        public int Id { get; set; }
 
         [Required]
         [StringLength(12)]
-        public string weekday { get; set; }
+        [Column("weekday")]
+        public string Weekday { get; set; }
+            
+        [Column("number")]
+        public int Number { get; set; }
 
-        public int order { get; set; }
+        [Column("teacher_subject_grade_id")]
+        public int TeacherSubjectGradeId { get; set; }
 
-        public virtual Grade Grade { get; set; }
-
-        public virtual Subject Subject { get; set; }
-
-        public virtual Teacher Teacher { get; set; }
+		public virtual TeacherSubjectGrade TeacherSubjectGrade { get; set; }
     }
 }

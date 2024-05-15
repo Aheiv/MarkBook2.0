@@ -22,16 +22,16 @@
 				<tbody>
 					@foreach (Data.Database.Model.Teacher teacher in teachers)
 					{
-						var tID = teacher.id_teacher;
+						var tID = teacher.id;
 
 						<tr>
-							<th scope="row">@teacher.id_teacher</th>
-							<td>@teacher.surname</td>
-							<td>@teacher.name</td>
+							<th scope="row">@teacher.id</th>
+							<td>@teacher.last_name</td>
+							<td>@teacher.first_name</td>
 							<td>@teacher.patronymic</td>
 							<td>
 								<button class="btn btn-danger" @onclick="@(() => {DeleteTeacher(tID);})">Удалить</button>
-								<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAT(tID);})">Изменить</button>
+								<button type="button" class="btn btn-success" @onclick="@(() => {RedirectToAT(tID);})">Изменить</button>
 							</td>
 						</tr>
 
@@ -39,7 +39,7 @@
 				</tbody>
 			</table>
 		}
-		<button type="button" class="btn btn-outline-info" @onclick="@(() => {RedirectToAT(0);})">Добавить учителя</button>
+		<button type="button" class="btn btn-primary" @onclick="@(() => {RedirectToAT(0);})">Добавить учителя</button>
 	</div>
 </div>
 
@@ -73,7 +73,7 @@
 			try
 			{
 				var teacherToRemove = await db.Teachers
-					.FirstAsync(teacher => teacher.id_teacher == id);
+					.FirstAsync(teacher => teacher.id == id);
 
 				db.Teachers.Remove(teacherToRemove);
 				db.SaveChanges();

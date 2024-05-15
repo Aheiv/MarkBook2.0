@@ -1,4 +1,4 @@
-﻿@page "/student{n}"
+﻿@page "/parent{n}"
 @using Microsoft.EntityFrameworkCore
 @using MarkBook.Data.Database.Model
 
@@ -33,11 +33,16 @@
 							<option value="@teacherSubjectGrade.Subject.Id">@teacherSubjectGrade.Subject.Name</option>
 						}
 					</select>
-						@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == int.Parse(n)))
+					<select name="student" @bind="sstudent">
+						@foreach (Data.Database.Model.ParentStudent pa in parentStudents.Where(x => x.Parent.Id == int.Parse(n)))
 						{
-							sstudent = student.Grade.Id;
+						@foreach (Data.Database.Model.Student student in students.Where(x => x.Id == pa.Student.Id))
+						{
+							<option value="@student.Grade.Id">@student.LastName @student.FirstName.Substring(0, 1).@student.Patronymic.Substring(0, 1).</option>
 						}
-					
+						}
+					</select>
+
 				</div>
 				<div>
 					@foreach (Data.Database.Model.Calendar calendar in calendars.Where(x => x.TeacherSubjectGrade.Teacher.id == 1
@@ -67,7 +72,6 @@
 @code {
 	[Parameter]
 	public string n { get; set; }
-
 	private bool loading = true;
 
 	public int ssubject = 1;
@@ -80,6 +84,8 @@
 
 	private List<Data.Database.Model.Student> students;
 
+	private List<Data.Database.Model.ParentStudent> parentStudents;
+
 	private async Task LoadSpecs()
 	{
 		using (var db = DbFactory.CreateDbContext())
@@ -88,17 +94,18 @@
 			calendars = await db.Calendars.Include(c => c.TeacherSubjectGrade).ToListAsync();
 			teacherSubjectGrades = await db.TeacherSubjectGrades.Include(x => x.Teacher).Include(x => x.Subject).Include(x => x.Grade).ToListAsync();
 			students = await db.Students.Include(x => x.Grade).ToListAsync();
+			parentStudents = await db.ParentStudents.Include(x => x.Student).Include(x => x.Parent).ToListAsync();
 		}
 		loading = false;
 	}
 
 	private void RedirectToGrades()
 	{
-		navigation.NavigateTo($"/student{n}/marks");
+		navigation.NavigateTo($"/parent{n}/marks");
 	}
 	private void RedirectToSchedule()
 	{
-		navigation.NavigateTo($"/student{n}/schedule");
+		navigation.NavigateTo($"/parent{n}/schedule");
 	}
 
 	protected override async Task OnInitializedAsync()
